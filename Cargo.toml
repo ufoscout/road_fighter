@@ -17,7 +17,7 @@ opt-level = 3
 
 [profile.release]
 opt-level = 'z'  # Optimize for size.
-lto = true
+# lto = true
 codegen-units = 1
 panic = 'abort'
 strip = true
