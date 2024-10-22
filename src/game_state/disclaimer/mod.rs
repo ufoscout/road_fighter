@@ -7,9 +7,9 @@ mod components;
 mod systems;
 
 /// The plugin that sets up the disclaimer screen
-pub struct DisclaimerPlugin;
+pub struct DisclaimerStatePlugin;
 
-impl Plugin for DisclaimerPlugin {
+impl Plugin for DisclaimerStatePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameGlobalState::Disclaimer), setup)
             .add_systems(

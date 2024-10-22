@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
-use game_state::{disclaimer::DisclaimerPlugin, introduction::IntroductionPlugin, GameGlobalState};
+use game_state::{disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, GameGlobalState};
 
 mod constants;
 mod game_state;
@@ -11,8 +11,8 @@ fn main() {
         .add_plugins(MainWindowPlugin)
         // Set up the global game state
         .init_state::<GameGlobalState>()
-        .add_plugins(DisclaimerPlugin)
-        .add_plugins(IntroductionPlugin)
+        .add_plugins(DisclaimerStatePlugin)
+        .add_plugins(IntroductionStatePlugin)
         .run();
 }
 
