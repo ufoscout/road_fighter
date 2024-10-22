@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::WindowResolution};
+use bevy::{prelude::*, render::camera::ScalingMode, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, GameGlobalState};
 
@@ -28,7 +28,7 @@ impl Plugin for MainWindowPlugin {
                 primary_window: Some(Window {
                     title: "Road Fighter".to_string(),
                     resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT),
-                    resizable: false,
+                    resizable: true,
                     ..default()
                 }),
                 ..default()
@@ -38,5 +38,17 @@ impl Plugin for MainWindowPlugin {
 
 fn setup(mut commands: Commands) {
     // Spawn a 2D camera
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle {
+        projection: OrthographicProjection {
+            // If the window is resized, the camera will automatically adjust
+            scaling_mode: ScalingMode::AutoMin {
+                min_width: WINDOW_WIDTH,
+                min_height: WINDOW_HEIGHT,
+            },
+            far: 1000.,
+            near: -1000.,            
+            ..default()
+        },
+        ..default()
+    });
 }
