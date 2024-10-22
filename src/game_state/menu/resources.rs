@@ -13,3 +13,23 @@ pub enum MenuEntry {
     Options,
     Exit,
 }
+
+impl MenuEntry {
+    pub fn next(&self) -> Self {
+        match self {
+            Self::OnePlayer => Self::TwoPlayers,
+            Self::TwoPlayers => Self::Options,
+            Self::Options => Self::Exit,
+            Self::Exit => Self::OnePlayer,
+        }
+    }
+
+    pub fn previous(&self) -> Self {
+        match self {
+            Self::OnePlayer => Self::Exit,
+            Self::TwoPlayers => Self::OnePlayer,
+            Self::Options => Self::TwoPlayers,
+            Self::Exit => Self::Options,
+        }
+    }
+}

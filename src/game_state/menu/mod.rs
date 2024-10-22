@@ -17,13 +17,14 @@ impl Plugin for MenuStatePlugin {
             .init_resource::<MenuData>()
             .add_systems(
                 Update,
-                systems::on_key_pressed.run_if(in_state(GameGlobalState::Menu)),
+                (systems::on_key_pressed, systems::update_draw).run_if(in_state(GameGlobalState::Menu)),
             );
     }
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // Spawn the background
+
+    // Spawn the title
     commands.spawn((
         SpriteBundle {
             texture: asset_server.load("graphics/title.png"),
@@ -31,6 +32,16 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         MenuTitle,
+    ));
+
+    // Spawn the arrow
+    commands.spawn((
+        SpriteBundle {
+            texture: asset_server.load("graphics/arrow.png"),
+            transform: Transform::from_translation(Vec3::new(-110.0, -22.0, 1.0)),
+            ..default()
+        },
+        MenuArrow,
     ));
 
     // Add menu entries

@@ -4,4 +4,4 @@ use bevy::prelude::*;
 pub struct MenuTitle;
 
 #[derive(Component)]
-pub struct MenuBackground;
+pub struct MenuArrow;
