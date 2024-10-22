@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
-use game_state::{disclaimer::DisclaimerPlugin, Game};
+use game_state::{disclaimer::DisclaimerPlugin, introduction::IntroductionPlugin, Game};
 
 mod constants;
 mod game_state;
@@ -11,6 +11,7 @@ fn main() {
         .init_resource::<Game>()
 
         .add_plugins(DisclaimerPlugin)
+        .add_plugins(IntroductionPlugin)
         
         // Plugin that sets up the main window
         .add_plugins(MainWindowPlugin)
