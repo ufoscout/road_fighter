@@ -11,9 +11,11 @@ pub struct DisclaimerPlugin;
 
 impl Plugin for DisclaimerPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_systems(OnEnter(GameGlobalState::Disclaimer), setup)
-        .add_systems(Update, systems::disclaimer_key_pressed.run_if(in_state(GameGlobalState::Disclaimer)));
+        app.add_systems(OnEnter(GameGlobalState::Disclaimer), setup)
+            .add_systems(
+                Update,
+                systems::disclaimer_key_pressed.run_if(in_state(GameGlobalState::Disclaimer)),
+            );
     }
 }
 
@@ -29,6 +31,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             visibility: Visibility::Visible,
             ..default()
         },
-        DisclaimerBackground
+        DisclaimerBackground,
     ));
 }

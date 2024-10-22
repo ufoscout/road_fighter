@@ -9,37 +9,31 @@ fn main() {
     App::new()
         // Plugin that sets up the main window
         .add_plugins(MainWindowPlugin)
-
         // Set up the global game state
         .init_state::<GameGlobalState>()
-
         .add_plugins(DisclaimerPlugin)
         .add_plugins(IntroductionPlugin)
-        
         .run();
 }
 
 struct MainWindowPlugin;
 
 impl Plugin for MainWindowPlugin {
-
     fn build(&self, app: &mut App) {
         app
-        // Systems that run once at the start of the app
-        .add_systems(Startup, setup)
-
-        // Set up the main window
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "Road Fighter".to_string(),
-                resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT),
-                resizable: false,
+            // Systems that run once at the start of the app
+            .add_systems(Startup, setup)
+            // Set up the main window
+            .add_plugins(DefaultPlugins.set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Road Fighter".to_string(),
+                    resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT),
+                    resizable: false,
+                    ..default()
+                }),
                 ..default()
-            }),
-            ..default()
-        }));
+            }));
     }
-
 }
 
 fn setup(mut commands: Commands) {
