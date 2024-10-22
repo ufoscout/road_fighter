@@ -19,7 +19,7 @@ impl Plugin for MenuStatePlugin {
             .init_resource::<MenuData>()
             .add_systems(
                 Update,
-                (systems::on_key_pressed, systems::render_arrow).run_if(in_state(GameGlobalState::Menu)),
+                (systems::handle_key_pressed, systems::render_arrow).run_if(in_state(GameGlobalState::Menu)),
             );
     }
 }

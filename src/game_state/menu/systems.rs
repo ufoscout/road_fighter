@@ -1,14 +1,15 @@
 use bevy::prelude::*;
 
-use crate::game_state::GameGlobalState;
+use crate::game_state::{menu::resources::MenuEntry, GameGlobalState};
 
 use super::{constants::{MENU_ARROW_BASE_Y_OFFEST, MENU_ARROW_Y_STEP}, resources::MenuData, MenuArrow};
 
 /// The system that handles key presses in the menu
-pub fn on_key_pressed(
+pub fn handle_key_pressed(
     mut next_state: ResMut<NextState<GameGlobalState>>,
     mut menu_data: ResMut<MenuData>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut exit: EventWriter<AppExit>
 ) {
     if keyboard_input.just_pressed(KeyCode::ArrowDown) {
         menu_data.selected_entry = menu_data.selected_entry.next()
@@ -16,6 +17,12 @@ pub fn on_key_pressed(
         menu_data.selected_entry = menu_data.selected_entry.previous()
     } else if keyboard_input.just_pressed(KeyCode::Space) {
         println!("Selected entry: {:?}", menu_data.selected_entry);
+
+        // Exit the game if the selected entry is Exit
+        if menu_data.selected_entry == MenuEntry::Exit {
+            exit.send(AppExit::Success);
+        }
+
     }
 }
 
