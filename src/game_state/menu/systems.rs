@@ -20,7 +20,7 @@ pub fn on_key_pressed(
 }
 
 /// The system that moves the cursor to the selected entry
-pub fn update_draw(
+pub fn render_arrow(
     menu_data: Res<MenuData>,
     mut query: Query<(&mut Transform, &MenuArrow)>,
 ) {
