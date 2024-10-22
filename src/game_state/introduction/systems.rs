@@ -1,7 +1,7 @@
 
 use bevy::prelude::*;
 
-use crate::game_state::{Game, GameState};
+use crate::game_state::GameGlobalState;
 
 use super::{components::*, state::IntroductionState};
 
@@ -9,7 +9,7 @@ use super::{components::*, state::IntroductionState};
 pub fn introduction_key_pressed(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut game: ResMut<Game>, mut introduction_state: ResMut<IntroductionState>, background: Query<(Entity, &IntroductionBackground)>, keyboard_input: Res<ButtonInput<KeyCode>>) {
+    mut next_state: ResMut<NextState<GameGlobalState>>, mut introduction_state: ResMut<IntroductionState>, background: Query<(Entity, &IntroductionBackground)>, keyboard_input: Res<ButtonInput<KeyCode>>) {
     if keyboard_input.get_just_pressed().next().is_some() {
 
         background.iter().for_each(|(entity, _)| {
@@ -20,15 +20,6 @@ pub fn introduction_key_pressed(
             0 => {
                 commands.spawn((
                     SpriteBundle {
-                        texture: asset_server.load("graphics/retroremakes.png"),
-                        ..default()
-                    },
-                    IntroductionBackground
-                ));
-            },
-            1 => {
-                commands.spawn((
-                    SpriteBundle {
                         texture: asset_server.load("graphics/konami2.png"),
                         ..default()
                     },
@@ -37,7 +28,7 @@ pub fn introduction_key_pressed(
             },
             _ => {
                 // Move to the next step
-                game.state = GameState::Menu;
+                next_state.set(GameGlobalState::Menu);
             }
         }
         introduction_state.step += 1;

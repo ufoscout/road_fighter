@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use components::DisclaimerBackground;
 
-use super::{Game, GameState};
+use super::GameGlobalState;
 
 mod components;
 mod systems;
@@ -12,13 +12,9 @@ pub struct DisclaimerPlugin;
 impl Plugin for DisclaimerPlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_systems(Startup, setup)
-        .add_systems(Update, systems::disclaimer_key_pressed.run_if(is_state_disclaimer));
+        .add_systems(OnEnter(GameGlobalState::Disclaimer), setup)
+        .add_systems(Update, systems::disclaimer_key_pressed.run_if(in_state(GameGlobalState::Disclaimer)));
     }
-}
-
-fn is_state_disclaimer(game: Res<Game>) -> bool {
-    game.state == GameState::Disclaimer
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
