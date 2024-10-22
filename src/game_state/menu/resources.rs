@@ -32,4 +32,13 @@ impl MenuEntry {
             Self::Exit => Self::Options,
         }
     }
+
+    pub fn index(&self) -> usize {
+        match self {
+            Self::OnePlayer => 0,
+            Self::TwoPlayers => 1,
+            Self::Options => 2,
+            Self::Exit => 3,
+        }
+    }
 }

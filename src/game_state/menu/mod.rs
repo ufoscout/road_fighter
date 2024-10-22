@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 use components::*;
+use constants::MENU_ARROW_BASE_Y_OFFEST;
 use resources::MenuData;
 
 use super::GameGlobalState;
 
 mod components;
+mod constants;
 mod resources;
 mod systems;
 
@@ -38,7 +40,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         SpriteBundle {
             texture: asset_server.load("graphics/arrow.png"),
-            transform: Transform::from_translation(Vec3::new(-110.0, -22.0, 1.0)),
+            transform: Transform::from_translation(Vec3::new(-110.0, MENU_ARROW_BASE_Y_OFFEST, 1.0)),
             ..default()
         },
         MenuArrow,

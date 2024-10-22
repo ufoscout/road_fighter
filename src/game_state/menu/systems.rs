@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::game_state::GameGlobalState;
 
-use super::{resources::MenuData, MenuArrow};
+use super::{constants::{MENU_ARROW_BASE_Y_OFFEST, MENU_ARROW_Y_STEP}, resources::MenuData, MenuArrow};
 
 /// The system that handles key presses in the menu
 pub fn on_key_pressed(
@@ -24,7 +24,7 @@ pub fn update_draw(
     menu_data: Res<MenuData>,
     mut query: Query<(&mut Transform, &MenuArrow)>,
 ) {
-    // for (mut transform, _) in query.iter_mut() {
-    //     transform.translation.y = menu_data.selected_entry.y();
-    // }
+    for (mut transform, _) in query.iter_mut() {
+        transform.translation.y = menu_data.selected_entry.index() as f32 * MENU_ARROW_Y_STEP + MENU_ARROW_BASE_Y_OFFEST;
+    }
 }
