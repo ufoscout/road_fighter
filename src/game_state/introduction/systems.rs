@@ -37,6 +37,7 @@ pub fn render_screen(
                         texture: asset_server.load("graphics/retroremakes.png"),
                         ..default()
                     },
+                    IntroductionAll,
                     IntroductionBackground,
                 ));
             }
@@ -46,6 +47,7 @@ pub fn render_screen(
                         texture: asset_server.load("graphics/konami2.png"),
                         ..default()
                     },
+                    IntroductionAll,
                     IntroductionBackground,
                 ));
             }

@@ -15,7 +15,8 @@ pub struct MenuStatePlugin;
 
 impl Plugin for MenuStatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameGlobalState::Menu), setup)
+        app.add_systems(OnEnter(GameGlobalState::Menu), on_enter)
+            .add_systems(OnExit(GameGlobalState::Menu), on_exit)
             .init_resource::<MenuData>()
             .add_systems(
                 Update,
@@ -24,7 +25,7 @@ impl Plugin for MenuStatePlugin {
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     // Spawn the title
     commands.spawn((
@@ -33,6 +34,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             transform: Transform::from_translation(Vec3::new(0.0, 80.0, 0.0)),
             ..default()
         },
+        MenuAll,
         MenuTitle,
     ));
 
@@ -43,6 +45,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             transform: Transform::from_translation(Vec3::new(-110.0, MENU_ARROW_BASE_Y_OFFEST, 1.0)),
             ..default()
         },
+        MenuAll,
         MenuArrow,
     ));
 
@@ -65,7 +68,21 @@ EXIT"#;
                 .with_justify(JustifyText::Left),
             transform: Transform::from_translation(Vec3::new(25.0, -75.0, 0.0)),
             ..default()
-        },));
+            },
+            MenuAll,    
+        ));
     }
     
+}
+
+// Despawn the menu screen
+fn on_exit(
+    mut commands: Commands,
+    menu_all: Query<(Entity, &MenuAll)>,
+) {
+        menu_all
+            .iter()
+            .for_each(|(entity, _)| {
+                commands.entity(entity).despawn()
+            });
 }

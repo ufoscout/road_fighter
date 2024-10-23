@@ -16,11 +16,15 @@ pub fn handle_key_pressed(
     } else if keyboard_input.just_pressed(KeyCode::ArrowUp) {
         menu_data.selected_entry = menu_data.selected_entry.previous()
     } else if keyboard_input.just_pressed(KeyCode::Space) {
+        
         println!("Selected entry: {:?}", menu_data.selected_entry);
 
-        // Exit the game if the selected entry is Exit
         if menu_data.selected_entry == MenuEntry::Exit {
+            // Exit the game if the selected entry is Exit
             exit.send(AppExit::Success);
+        } else if menu_data.selected_entry == MenuEntry::OnePlayer {
+            // Set the next state to Playing if the selected entry is OnePlayer
+            next_state.set(GameGlobalState::Playing);            
         }
 
     }

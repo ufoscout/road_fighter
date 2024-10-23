@@ -3,6 +3,7 @@ use bevy::prelude::*;
 pub mod disclaimer;
 pub mod introduction;
 pub mod menu;
+pub mod playing;
 
 // The possible states of the game
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
@@ -14,4 +15,6 @@ pub enum GameGlobalState {
     Introduction,
     // The main menu screen
     Menu,
+    // Play the game
+    Playing,
 }
