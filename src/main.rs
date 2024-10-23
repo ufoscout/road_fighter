@@ -1,7 +1,7 @@
 use bevy::{prelude::*, render::camera::ScalingMode, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{
-    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin, GameGlobalState
+    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin, playing::PlayingStatePlugin, GameGlobalState
 };
 
 mod constants;
@@ -16,6 +16,7 @@ fn main() {
         .add_plugins(DisclaimerStatePlugin)
         .add_plugins(IntroductionStatePlugin)
         .add_plugins(MenuStatePlugin)
+        .add_plugins(PlayingStatePlugin)
         .run();
 }
 

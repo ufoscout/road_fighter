@@ -18,7 +18,7 @@ pub fn render_screen(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     introduction_state: Res<PlayingData>,
-    background: Query<(Entity, &PlayingBackground)>,
+    background: Query<(Entity, &PlayerOneCar)>,
 ) {
 
     

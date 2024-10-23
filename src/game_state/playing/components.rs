@@ -2,5 +2,9 @@ use bevy::prelude::*;
 
 pub mod player_car;
 
+/// All components for the Playing state
 #[derive(Component)]
-pub struct PlayingBackground;
+pub struct PlayingAll;
+
+#[derive(Component)]
+pub struct PlayerOneCar;
