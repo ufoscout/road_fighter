@@ -12,6 +12,8 @@ pub struct MapData {
     /// The semaphore tiles
     pub semaphore_tiles: [[usize; 2]; 5],
     pub background_tiles: Vec<BackgroundTile>,
+    pub middleground_tiles: Vec<BackgroundTile>,
+    pub foreground_tiles: Vec<BackgroundTile>,
 
 }
 
@@ -192,6 +194,58 @@ impl MapData {
             // background tiles
             {
                 let line = read_line(&mut lines)?;
+                // println!("background tiles line: {}", line);
+                let mut line = line.split_whitespace();
+                let count: usize = parse_next(&mut line)?;
+
+                for _ in 0..count {
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+                    
+                    let tile = BackgroundTile {
+                        x: parse_next(&mut line)?,
+                        y: parse_next(&mut line)?,
+                        tile_bank: parse_next(&mut line)?,
+                        tile_num: parse_next(&mut line)?,
+                    };
+                    map.background_tiles.push(tile);
+                }
+            }
+            
+            // we are now at line 1951 of the level1.map file
+            
+            // background objects
+            {
+                let line = read_line(&mut lines)?;
+                // println!("background objects line: {}", line);
+                let mut line = line.split_whitespace();
+                let count: usize = parse_next(&mut line)?;
+                
+                for _ in 0..count {
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+
+                    let x: usize = parse_next(&mut line)?;
+                    let y: usize = parse_next(&mut line)?;
+
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+
+                    let index: usize = parse_next(&mut line)?;
+
+                    if Some(index)  == map.semaphore_object_index {
+                        let TODO = 0;
+                        println!("TODO: semaphore background object found");
+                    }
+                }
+            }
+
+            // we are now at line 1953 of the level1.map file
+
+            // middleground tiles
+            {
+                let line = read_line(&mut lines)?;
+                // println!("middleground tiles line: {}", line);
                 let mut line = line.split_whitespace();
                 let count: usize = parse_next(&mut line)?;
 
@@ -205,13 +259,86 @@ impl MapData {
                         tile_bank: parse_next(&mut line)?,
                         tile_num: parse_next(&mut line)?,
                     };
-                    map.background_tiles.push(tile);
+                    map.middleground_tiles.push(tile);
                 }
             }
 
-            // we are now at line 1951 of the level1.map file
+            // middleground objects
+            {
+                let line = read_line(&mut lines)?;
+                // println!("middleground objects line: {}", line);
+                let mut line = line.split_whitespace();
+                let count: usize = parse_next(&mut line)?;
 
+                for _ in 0..count {
+                    let line = read_line(&mut lines)?;
+                    
+                    let mut line = line.split_whitespace();
 
+                    let x: usize = parse_next(&mut line)?;
+                    let y: usize = parse_next(&mut line)?;
+
+                    let line = read_line(&mut lines)?;
+
+                    let mut line = line.split_whitespace();
+
+                    let index: usize = parse_next(&mut line)?;
+
+                    if Some(index)  == map.semaphore_object_index {
+                        let TODO = 0;
+                        println!("TODO: semaphore middleground object found");
+                    }
+                }
+            }
+
+            // we are now at line 3925 of the level1.map file
+
+            // foreground tiles
+            {
+                let line = read_line(&mut lines)?;
+                // println!("foreground tiles line: {}", line);
+                let mut line = line.split_whitespace();
+                let count: usize = parse_next(&mut line)?;
+
+                for _ in 0..count {
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+
+                    let tile = BackgroundTile {
+                        x: parse_next(&mut line)?,
+                        y: parse_next(&mut line)?,
+                        tile_bank: parse_next(&mut line)?,
+                        tile_num: parse_next(&mut line)?,
+                    };
+                    map.foreground_tiles.push(tile);
+                }
+            }
+            
+            // foreground objects
+            {
+                let line = read_line(&mut lines)?;
+                // println!("foreground objects line: {}", line);
+                let mut line = line.split_whitespace();
+                let count: usize = parse_next(&mut line)?;
+
+                for _ in 0..count {
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+
+                    let x: usize = parse_next(&mut line)?;
+                    let y: usize = parse_next(&mut line)?;
+
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+
+                    let index: usize = parse_next(&mut line)?;
+
+                    if Some(index)  == map.semaphore_object_index {
+                        let TODO = 0;
+                        println!("TODO: semaphore foreground object found");
+                    }
+                }
+            }
 
         }
 
@@ -294,6 +421,23 @@ mod tests {
         assert_eq!(map.background_tiles[5].y, 16000);
         assert_eq!(map.background_tiles[5].tile_bank, 1);
         assert_eq!(map.background_tiles[5].tile_num, 0);
+
+        assert_eq!(map.middleground_tiles.len(), 1970);
+
+        // 160 16256 0 0
+        assert_eq!(map.middleground_tiles[0].x, 160);
+        assert_eq!(map.middleground_tiles[0].y, 16256);
+        assert_eq!(map.middleground_tiles[0].tile_bank, 0);
+        assert_eq!(map.middleground_tiles[0].tile_num, 0);
+
+        assert_eq!(map.foreground_tiles.len(), 492);
+
+        // 32 16256 1 6
+        assert_eq!(map.foreground_tiles[1].x, 32);
+        assert_eq!(map.foreground_tiles[1].y, 16256);
+        assert_eq!(map.foreground_tiles[1].tile_bank, 1);
+        assert_eq!(map.foreground_tiles[1].tile_num, 6);
+
     }
 
 }
