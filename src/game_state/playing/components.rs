@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub mod map;
 pub mod player_car;
 
 /// All components for the Playing state

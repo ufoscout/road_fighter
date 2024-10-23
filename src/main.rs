@@ -5,6 +5,7 @@ use game_state::{
 };
 
 mod constants;
+mod error;
 mod game_state;
 
 fn main() {
