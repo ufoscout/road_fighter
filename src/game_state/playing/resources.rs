@@ -1,6 +1,6 @@
-use std::{cell::OnceCell, sync::OnceLock};
+use std::sync::OnceLock;
 
-use bevy::{prelude::*, scene::ron::Map, tasks::futures_lite::stream::Once};
+use bevy::prelude::*;
 
 use crate::game_state::playing::components::map::MapData;
 
@@ -23,6 +23,15 @@ pub enum PlayingLevel {
 }
 
 impl PlayingLevel {
+
+    pub const ALL: [PlayingLevel; 6] = [
+        PlayingLevel::LevelOne,
+        PlayingLevel::LevelTwo,
+        PlayingLevel::LevelThree,
+        PlayingLevel::LevelFour,
+        PlayingLevel::LevelFive,
+        PlayingLevel::LevelSix,
+    ];
 
     /// Returns the map data for the level
     pub fn map_data(&self) -> &MapData {
@@ -58,15 +67,32 @@ impl PlayingLevel {
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use super::*;
 
     #[test]
     fn test_parse_all_maps() {
-        PlayingLevel::LevelOne.map_data();
-        PlayingLevel::LevelTwo.map_data();
-        PlayingLevel::LevelThree.map_data();
-        PlayingLevel::LevelFour.map_data();
-        PlayingLevel::LevelFive.map_data();
-        PlayingLevel::LevelSix.map_data();
+        for level in PlayingLevel::ALL.iter() {
+            level.map_data();
+        }
+    }
+
+    #[test]
+    fn test_all_assets_exists() {
+
+        let check_assets = |level: &PlayingLevel| {
+            let map_data = level.map_data();
+            
+            for asset in &map_data.tile_sources {
+                let path: PathBuf = format!("assets/{asset}").into();
+                assert!(path.exists());
+            }
+        };
+
+        for level in PlayingLevel::ALL.iter() {
+            check_assets(level);
+        }
+        
     }
 }
