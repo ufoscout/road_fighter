@@ -2,21 +2,27 @@ use std::{io::{BufRead, BufReader, Lines, Read}, path::Path, str::{FromStr, Spli
 
 use crate::error::GameError;
 
+/// Represents the data of a map read from a mg2 file
 #[derive(Debug, Default)]
 pub struct MapData {
     pub tile_sources: Vec<String>,
     pub tiles: Vec<TileData>,
-    pub objects: Vec<String>,
+
     /// The index of the semaphore object in the objects field
     pub semaphore_object_index: Option<usize>,
     /// The semaphore tiles
     pub semaphore_tiles: [[usize; 2]; 5],
-    pub background_tiles: Vec<BackgroundTile>,
-    pub middleground_tiles: Vec<BackgroundTile>,
-    pub foreground_tiles: Vec<BackgroundTile>,
+
+    pub background_tiles: Vec<MapTile>,
+    pub middleground_tiles: Vec<MapTile>,
+    pub foreground_tiles: Vec<MapTile>,
+
+    pub width: usize,
+    pub height: usize,
 
 }
 
+/// Represents the data of a tile read from a mg2 file
 #[derive(Debug, Default)]
 pub struct TileData {
     pub tile_source: String,
@@ -27,8 +33,9 @@ pub struct TileData {
     pub collision: bool,
 }
 
+/// Represents a tile in the map
 #[derive(Debug, Default)]
-pub struct BackgroundTile {
+pub struct MapTile {
     pub x: isize,
     pub y: isize,
     pub tile_bank: usize,
@@ -37,11 +44,13 @@ pub struct BackgroundTile {
 
 impl MapData {
 
-    pub fn from_file(file: &Path) -> Result<MapData, GameError> {
+    /// Load a map from a file
+    pub fn from_file<P: AsRef<Path>>(file: P) -> Result<MapData, GameError> {
         let mut reader = std::fs::File::open(file)?;
         MapData::from_reader(&mut reader)
     }
 
+    /// Load a map from a reader
     pub fn from_reader(reader: &mut dyn Read) -> Result<MapData, GameError> {
 
         let mut map = MapData::default();
@@ -166,7 +175,7 @@ impl MapData {
                     }
                 }
 
-                // after the first for cicle, we are now at line 392 of the level1.map file
+                // after the first 'for' cicle, we are now at line 392 of the level1.map file
 
                 // skip 8 lines
                 for _ in 0..8 {
@@ -185,160 +194,23 @@ impl MapData {
             let line = read_line(&mut lines)?;
             let mut line = line.split_whitespace();
             let _: String = parse_next(&mut line)?;
-            let width = parse_next::<usize>(&mut line)? * 16usize;
-            let height = parse_next::<usize>(&mut line)? * 16usize;
+            map.width = parse_next::<usize>(&mut line)? * 16usize;
+            map.height = parse_next::<usize>(&mut line)? * 16usize;
 
             // skip 1 line
             let _ = read_line(&mut lines)?;
 
+            // we are now at line 409 of the level1.map file
             // background tiles
-            {
-                let line = read_line(&mut lines)?;
-                // println!("background tiles line: {}", line);
-                let mut line = line.split_whitespace();
-                let count: usize = parse_next(&mut line)?;
-
-                for _ in 0..count {
-                    let line = read_line(&mut lines)?;
-                    let mut line = line.split_whitespace();
-                    
-                    let tile = BackgroundTile {
-                        x: parse_next(&mut line)?,
-                        y: parse_next(&mut line)?,
-                        tile_bank: parse_next(&mut line)?,
-                        tile_num: parse_next(&mut line)?,
-                    };
-                    map.background_tiles.push(tile);
-                }
-            }
-            
-            // we are now at line 1951 of the level1.map file
-            
-            // background objects
-            {
-                let line = read_line(&mut lines)?;
-                // println!("background objects line: {}", line);
-                let mut line = line.split_whitespace();
-                let count: usize = parse_next(&mut line)?;
-                
-                for _ in 0..count {
-                    let line = read_line(&mut lines)?;
-                    let mut line = line.split_whitespace();
-
-                    let x: usize = parse_next(&mut line)?;
-                    let y: usize = parse_next(&mut line)?;
-
-                    let line = read_line(&mut lines)?;
-                    let mut line = line.split_whitespace();
-
-                    let index: usize = parse_next(&mut line)?;
-
-                    if Some(index)  == map.semaphore_object_index {
-                        let TODO = 0;
-                        println!("TODO: semaphore background object found");
-                    }
-                }
-            }
+            parse_objects_and_tiles(&mut lines, &mut map.background_tiles, map.semaphore_object_index)?;
 
             // we are now at line 1953 of the level1.map file
-
-            // middleground tiles
-            {
-                let line = read_line(&mut lines)?;
-                // println!("middleground tiles line: {}", line);
-                let mut line = line.split_whitespace();
-                let count: usize = parse_next(&mut line)?;
-
-                for _ in 0..count {
-                    let line = read_line(&mut lines)?;
-                    let mut line = line.split_whitespace();
-
-                    let tile = BackgroundTile {
-                        x: parse_next(&mut line)?,
-                        y: parse_next(&mut line)?,
-                        tile_bank: parse_next(&mut line)?,
-                        tile_num: parse_next(&mut line)?,
-                    };
-                    map.middleground_tiles.push(tile);
-                }
-            }
-
-            // middleground objects
-            {
-                let line = read_line(&mut lines)?;
-                // println!("middleground objects line: {}", line);
-                let mut line = line.split_whitespace();
-                let count: usize = parse_next(&mut line)?;
-
-                for _ in 0..count {
-                    let line = read_line(&mut lines)?;
-                    
-                    let mut line = line.split_whitespace();
-
-                    let x: usize = parse_next(&mut line)?;
-                    let y: usize = parse_next(&mut line)?;
-
-                    let line = read_line(&mut lines)?;
-
-                    let mut line = line.split_whitespace();
-
-                    let index: usize = parse_next(&mut line)?;
-
-                    if Some(index)  == map.semaphore_object_index {
-                        let TODO = 0;
-                        println!("TODO: semaphore middleground object found");
-                    }
-                }
-            }
+            // middleground
+            parse_objects_and_tiles(&mut lines, &mut map.middleground_tiles, map.semaphore_object_index)?;
 
             // we are now at line 3925 of the level1.map file
-
-            // foreground tiles
-            {
-                let line = read_line(&mut lines)?;
-                // println!("foreground tiles line: {}", line);
-                let mut line = line.split_whitespace();
-                let count: usize = parse_next(&mut line)?;
-
-                for _ in 0..count {
-                    let line = read_line(&mut lines)?;
-                    let mut line = line.split_whitespace();
-
-                    let tile = BackgroundTile {
-                        x: parse_next(&mut line)?,
-                        y: parse_next(&mut line)?,
-                        tile_bank: parse_next(&mut line)?,
-                        tile_num: parse_next(&mut line)?,
-                    };
-                    map.foreground_tiles.push(tile);
-                }
-            }
-            
-            // foreground objects
-            {
-                let line = read_line(&mut lines)?;
-                // println!("foreground objects line: {}", line);
-                let mut line = line.split_whitespace();
-                let count: usize = parse_next(&mut line)?;
-
-                for _ in 0..count {
-                    let line = read_line(&mut lines)?;
-                    let mut line = line.split_whitespace();
-
-                    let x: usize = parse_next(&mut line)?;
-                    let y: usize = parse_next(&mut line)?;
-
-                    let line = read_line(&mut lines)?;
-                    let mut line = line.split_whitespace();
-
-                    let index: usize = parse_next(&mut line)?;
-
-                    if Some(index)  == map.semaphore_object_index {
-                        let TODO = 0;
-                        println!("TODO: semaphore foreground object found");
-                    }
-                }
-            }
+            // foreground
+            parse_objects_and_tiles(&mut lines, &mut map.foreground_tiles, map.semaphore_object_index)?;
 
         }
 
@@ -346,6 +218,59 @@ impl MapData {
         Ok(map)
     }
 
+}
+
+/// Read objects and tiles from the map file
+fn parse_objects_and_tiles(lines: &mut Lines<BufReader<&mut dyn Read>>, tiles: &mut Vec<MapTile>, semaphore_object_index: Option<usize>) -> Result<(), GameError> {
+                // background tiles
+                {
+                    let line = read_line(lines)?;
+                    // println!("background tiles line: {}", line);
+                    let mut line = line.split_whitespace();
+                    let count: usize = parse_next(&mut line)?;
+    
+                    for _ in 0..count {
+                        let line = read_line(lines)?;
+                        let mut line = line.split_whitespace();
+                        
+                        let tile = MapTile {
+                            x: parse_next(&mut line)?,
+                            y: parse_next(&mut line)?,
+                            tile_bank: parse_next(&mut line)?,
+                            tile_num: parse_next(&mut line)?,
+                        };
+                        tiles.push(tile);
+                    }
+                }
+                
+                // we are now at line 1951 of the level1.map file
+                
+                // background objects
+                {
+                    let line = read_line(lines)?;
+                    // println!("background objects line: {}", line);
+                    let mut line = line.split_whitespace();
+                    let count: usize = parse_next(&mut line)?;
+                    
+                    for _ in 0..count {
+                        let line = read_line(lines)?;
+                        let mut line = line.split_whitespace();
+    
+                        let x: usize = parse_next(&mut line)?;
+                        let y: usize = parse_next(&mut line)?;
+    
+                        let line = read_line(lines)?;
+                        let mut line = line.split_whitespace();
+    
+                        let index: usize = parse_next(&mut line)?;
+    
+                        if Some(index)  == semaphore_object_index {
+                            let TODO = 0;
+                            println!("TODO: semaphore background object found");
+                        }
+                    }
+                }
+            Ok(())
 }
 
 /// reads a line from the reader
@@ -356,7 +281,7 @@ fn read_line(reader: &mut Lines<BufReader<&mut dyn Read>>) -> Result<String, Gam
 
 /// reads a line from the reader and splits it into words
 fn parse_next<T: FromStr>(split: &mut SplitWhitespace) -> Result<T, GameError> 
-    where <T as FromStr>::Err: std::fmt::Debug
+where <T as FromStr>::Err: std::fmt::Debug
 {
     let sources_count = split.next().ok_or_else(|| GameError::ParseError(format!("Expected no more split entries to parse")))?;
     let parsed: T = sources_count.parse().map_err(|err| GameError::ParseError(format!("Cannot parse as usize: {err:?}")))?;
@@ -365,16 +290,14 @@ fn parse_next<T: FromStr>(split: &mut SplitWhitespace) -> Result<T, GameError>
 
 #[cfg(test)]
 mod tests {
+
     use std::path::PathBuf;
-
-    use crate::game_state::playing::PlayingLevel;
-
     use super::*;
 
     #[test]
     fn test_map_from_file() {
         // Arrange
-        let file: PathBuf = PlayingLevel::LevelOne.map_file().into();
+        let file: PathBuf = "data/maps/level1.mg2".into();
         assert!(file.exists());
 
         // Act
@@ -382,24 +305,24 @@ mod tests {
 
         // Assert
         assert_eq!(map.tile_sources.len(), 3);
-        assert_eq!(map.tile_sources[0], "graphics/road.bmp");
+        assert_eq!(map.tile_sources[0], "graphics/road.png");
 
         assert_eq!(map.tiles.len(), 30);
         
-        // graphics/road.bmp
+        // graphics/road.png
         // 0 256 32 128
         // 2 2
-        assert_eq!(map.tiles[9].tile_source, "graphics/road.bmp");
+        assert_eq!(map.tiles[9].tile_source, "graphics/road.png");
         assert_eq!(map.tiles[9].x, 0);
         assert_eq!(map.tiles[9].y, 256);
         assert_eq!(map.tiles[9].width, 32);
         assert_eq!(map.tiles[9].height, 128);
         assert_eq!(map.tiles[9].collision, true);
 
-        // graphics/level1.bmp
+        // graphics/level1.png
         // 0 128 128 32
         // 2 0
-        assert_eq!(map.tiles[12].tile_source, "graphics/level1.bmp");
+        assert_eq!(map.tiles[12].tile_source, "graphics/level1.png");
         assert_eq!(map.tiles[12].x, 0);
         assert_eq!(map.tiles[12].y, 128);
         assert_eq!(map.tiles[12].width, 128);
