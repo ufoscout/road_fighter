@@ -6,6 +6,12 @@ use crate::error::GameError;
 pub struct MapData {
     pub tile_sources: Vec<String>,
     pub tiles: Vec<TileData>,
+    pub objects: Vec<String>,
+    /// The index of the semaphore object in the objects field
+    pub semaphore_object_index: Option<usize>,
+    /// The semaphore tiles
+    pub semaphore_tiles: [[usize; 2]; 5],
+    pub background_tiles: Vec<BackgroundTile>,
 
 }
 
@@ -17,6 +23,14 @@ pub struct TileData {
     pub width: usize,
     pub height: usize,
     pub collision: bool,
+}
+
+#[derive(Debug, Default)]
+pub struct BackgroundTile {
+    pub x: isize,
+    pub y: isize,
+    pub tile_bank: usize,
+    pub tile_num: usize,
 }
 
 impl MapData {
@@ -52,7 +66,7 @@ impl MapData {
         // Read TILES
         {
             // each map has exactly 256 tiles
-            for _ in 0..255 {
+            for _ in 0..256 {
 
                 let line = read_line(&mut lines)?;
                 let mut line: SplitWhitespace<'_> = line.split_whitespace();
@@ -85,14 +99,122 @@ impl MapData {
                 }
             }
         }
-        // let line = lines.next()?;
-        
-        // let n: usize = line.split_whitespace().nth(1)?.parse().ok()?;
-        // for _ in 0..n {
-        //     let source = TileSource;
-        //     source.load(&mut reader);
-        //     self.tile_sources.push(source);
-        // }
+
+        // Read Objects block
+        {
+            let line = read_line(&mut lines)?;
+
+            let mut line = line.split_whitespace();
+            let _: String = parse_next(&mut line)?;
+            let objects_count: usize = parse_next(&mut line)?;
+
+            for object_index in 0..objects_count {
+                // First line: object name
+                let line = read_line(&mut lines)?;
+                let mut line = line.split_whitespace();
+                let _: String = parse_next(&mut line)?;
+                let object_name: String = parse_next(&mut line)?;
+
+                if object_name.to_lowercase() == "\"semaphore\"" {
+                    map.semaphore_object_index = Some(object_index);
+                }
+                
+                // Second line
+                let line = read_line(&mut lines)?;
+                let mut line = line.split_whitespace();
+                let nbitmaps: usize = parse_next(&mut line)?;
+
+                for nbitmap_count in 0..nbitmaps {
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+                    let tile_bank: usize = parse_next(&mut line)?;
+                    let tile_num: usize = parse_next(&mut line)?;
+
+                    if Some(object_index) == map.semaphore_object_index {
+                        map.semaphore_tiles[nbitmap_count][0] = tile_bank;
+                        map.semaphore_tiles[nbitmap_count][1] = tile_num;
+                    }
+
+                    let nlinks: usize = parse_next(&mut line)?;
+
+                    // skip lines
+                    for _ in 0..nlinks {
+                        let _ = read_line(&mut lines)?;
+                    }
+                }
+
+                let line = read_line(&mut lines)?;
+                let mut line = line.split_whitespace();
+                let nparts: usize = parse_next(&mut line)?;
+
+                // skip nparts lines
+                for _ in 0..nparts {
+                    let _ = read_line(&mut lines)?;
+                }
+
+                // skip 3 lines
+                for _ in 0..3 {
+                    let _ = read_line(&mut lines)?;
+                }
+
+                // skip 23 times nparts lines
+                for _ in 0..23 {
+                    for _ in 0..nparts {
+                        let _ = read_line(&mut lines)?;
+                    }
+                }
+
+                // after the first for cicle, we are now at line 392 of the level1.map file
+
+                // skip 8 lines
+                for _ in 0..8 {
+                    let _ = read_line(&mut lines)?;
+                }
+            }
+        }
+
+        // skip 7 lines
+        for _ in 0..7 {
+            let _ = read_line(&mut lines)?;
+        }
+
+        // The MAP section starts with a `SIZE number number` triplet in the map file
+        {
+            let line = read_line(&mut lines)?;
+            let mut line = line.split_whitespace();
+            let _: String = parse_next(&mut line)?;
+            let width = parse_next::<usize>(&mut line)? * 16usize;
+            let height = parse_next::<usize>(&mut line)? * 16usize;
+
+            // skip 1 line
+            let _ = read_line(&mut lines)?;
+
+            // background tiles
+            {
+                let line = read_line(&mut lines)?;
+                let mut line = line.split_whitespace();
+                let count: usize = parse_next(&mut line)?;
+
+                for _ in 0..count {
+                    let line = read_line(&mut lines)?;
+                    let mut line = line.split_whitespace();
+
+                    let tile = BackgroundTile {
+                        x: parse_next(&mut line)?,
+                        y: parse_next(&mut line)?,
+                        tile_bank: parse_next(&mut line)?,
+                        tile_num: parse_next(&mut line)?,
+                    };
+                    map.background_tiles.push(tile);
+                }
+            }
+
+            // we are now at line 1951 of the level1.map file
+
+
+
+        }
+
 
         Ok(map)
     }
@@ -157,6 +279,21 @@ mod tests {
         assert_eq!(map.tiles[12].height, 32);
         assert_eq!(map.tiles[12].collision, false);
 
+        assert_eq!(map.semaphore_object_index, Some(0));
+        assert_eq!(map.semaphore_tiles[0], [1, 14]);
+        assert_eq!(map.semaphore_tiles[1], [1, 15]);
+        assert_eq!(map.semaphore_tiles[2], [1, 16]);
+        assert_eq!(map.semaphore_tiles[3], [1, 17]);
+        assert_eq!(map.semaphore_tiles[4], [1, 18]);
+
+
+        assert_eq!(map.background_tiles.len(), 1541);
+
+        // 128 16000 1 0
+        assert_eq!(map.background_tiles[5].x, 128);
+        assert_eq!(map.background_tiles[5].y, 16000);
+        assert_eq!(map.background_tiles[5].tile_bank, 1);
+        assert_eq!(map.background_tiles[5].tile_num, 0);
     }
 
 }
