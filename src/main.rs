@@ -39,7 +39,9 @@ impl Plugin for MainWindowPlugin {
                         ..default()
                     }),
                     ..default()
-                }),
+                })
+                // Setting the texture filtering mode to Nearest (and not Linear) makes the pixels to appear crisp instead of blurry
+                .set(ImagePlugin::default_nearest()),
             );
     }
 }
