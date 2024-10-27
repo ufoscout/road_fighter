@@ -1,5 +1,6 @@
 use bevy::{prelude::*, render::texture};
-use components::{map::{MapData, MapTile}, player_car::PlayerCar};
+use components::{map::{MapData, MapTile}, *};
+use player_car::PlayerCar;
 use resources::*;
 
 use crate::constants::WINDOW_HEIGHT;
@@ -28,31 +29,39 @@ fn on_enter(mut playing_state: ResMut<PlayingData>,
     mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,) {
     *playing_state = Default::default();
 
-    // Spawn the player car
-    PlayerCar{}.spawn(&mut commands, &asset_server, &mut texture_atlas_layouts);
-
-
+    
+    
     // Load the map data
     let map_data = playing_state.level.map_data();
-
+    let mut max_y = 0f32;
+    
     // Spawn background tiles
     for map_tile in map_data.background_tiles.iter() {
-        span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 0.);
+        let y = span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 0.);
+        max_y = max_y.max(y);
     }
-
+    
     // Spawn middleground tiles
     for map_tile in map_data.middleground_tiles.iter() {
-        span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 1.);
+        let y = span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 1.);
+        max_y = max_y.max(y);
     }
-
+    
     // // Spawn foreground tiles
     for map_tile in map_data.foreground_tiles.iter() {
-        span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 2.);
+        let y = span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 2.);
+        max_y = max_y.max(y);
     }
+    
 
+
+    // Spawn the player car
+    PlayerCar.spawn(&mut commands, &asset_server, &mut texture_atlas_layouts, max_y);
+    
 }
 
-fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_atlas_layouts: &mut Assets<TextureAtlasLayout>, map_tile: &MapTile, map_data: &MapData, z: f32) {
+/// Spawns a tile on the screen and return the entity y coordinate
+fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_atlas_layouts: &mut Assets<TextureAtlasLayout>, map_tile: &MapTile, map_data: &MapData, z: f32) -> f32 {
     let tile_data = map_data.tiles.get(map_tile.tile_bank)
         .and_then(|t| t.get(map_tile.tile_num)).expect(&format!("cannot find tile bank {}, num {}", map_tile.tile_bank, map_tile.tile_num));
 
@@ -81,7 +90,9 @@ fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_at
                 Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
             )),
         },
-        // PlayingAll,
-        // PlayerOneCar,
+        PlayingAll,
+        PlayingMap,
     ));
+
+    y
 }

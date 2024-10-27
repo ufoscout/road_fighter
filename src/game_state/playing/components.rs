@@ -8,4 +8,12 @@ pub mod player_car;
 pub struct PlayingAll;
 
 #[derive(Component)]
-pub struct PlayerOneCar;
+pub struct PlayerOneCar {
+    pub speed_y: f32,
+}
+
+#[derive(Component)]
+pub struct PlayerTwoCar;
+
+#[derive(Component)]
+pub struct PlayingMap;

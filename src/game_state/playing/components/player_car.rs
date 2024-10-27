@@ -3,12 +3,11 @@ use bevy::prelude::*;
 use super::*;
 
 
-pub struct PlayerCar {
-}
+pub struct PlayerCar;
 
 impl PlayerCar {
 
-    pub fn spawn(&self, commands: &mut Commands, asset_server: &AssetServer, texture_atlas_layouts: &mut Assets<TextureAtlasLayout>) {
+    pub fn spawn(&self, commands: &mut Commands, asset_server: &AssetServer, texture_atlas_layouts: &mut Assets<TextureAtlasLayout>, race_y_position: f32,) {
 
         // Spawn the player car
         commands.spawn((
@@ -28,7 +27,9 @@ impl PlayerCar {
                 )),
             },
             PlayingAll,
-            PlayerOneCar,
+            PlayerOneCar {
+                speed_y: race_y_position
+            },
         ));
 
     }
