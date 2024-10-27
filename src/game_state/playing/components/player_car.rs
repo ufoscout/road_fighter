@@ -14,7 +14,7 @@ impl PlayerCar {
         commands.spawn((
             SpriteBundle {
                 texture: asset_server.load("graphics/car1.png"),
-                transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+                transform: Transform::from_translation(Vec3::new(0.0, 0.0, 255.0)),
                 ..default()
             },
             TextureAtlas {

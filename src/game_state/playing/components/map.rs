@@ -1,4 +1,4 @@
-use std::{io::{BufRead, BufReader, Lines, Read}, path::Path, str::{FromStr, SplitWhitespace}};
+use std::{io::{BufRead, BufReader, Lines, Read}, path::Path, str::{FromStr, SplitWhitespace}, vec};
 
 use crate::error::GameError;
 
@@ -6,7 +6,7 @@ use crate::error::GameError;
 #[derive(Debug, Default)]
 pub struct MapData {
     pub tile_sources: Vec<String>,
-    pub tiles: Vec<TileData>,
+    pub tiles: Vec<Vec<TileData>>,
 
     /// The index of the semaphore object in the objects field
     pub semaphore_object_index: Option<usize>,
@@ -17,8 +17,8 @@ pub struct MapData {
     pub middleground_tiles: Vec<MapTile>,
     pub foreground_tiles: Vec<MapTile>,
 
-    pub width: usize,
-    pub height: usize,
+    pub width: f32,
+    pub height: f32,
 
 }
 
@@ -26,18 +26,18 @@ pub struct MapData {
 #[derive(Debug, Default)]
 pub struct TileData {
     pub tile_source: String,
-    pub x: usize,
-    pub y: usize,
-    pub width: usize,
-    pub height: usize,
+    pub x: f32,
+    pub y: f32,
+    pub width: u32,
+    pub height: u32,
     pub collision: bool,
 }
 
 /// Represents a tile in the map
 #[derive(Debug, Default)]
 pub struct MapTile {
-    pub x: isize,
-    pub y: isize,
+    pub x: f32,
+    pub y: f32,
     pub tile_bank: usize,
     pub tile_num: usize,
 }
@@ -79,6 +79,8 @@ impl MapData {
             // each map has exactly 256 tiles
             for _ in 0..256 {
 
+                let mut tiles_bank = vec![];
+
                 let line = read_line(&mut lines)?;
                 let mut line: SplitWhitespace<'_> = line.split_whitespace();
                 let _: String = parse_next(&mut line)?;
@@ -106,8 +108,11 @@ impl MapData {
                     tile_data.collision = parse_next::<u8>(&mut line)? == 2;
 
                     // Add tile to map
-                    map.tiles.push(tile_data);
+                    tiles_bank.push(tile_data);
                 }
+
+                map.tiles.push(tiles_bank);
+
             }
         }
 
@@ -194,8 +199,8 @@ impl MapData {
             let line = read_line(&mut lines)?;
             let mut line = line.split_whitespace();
             let _: String = parse_next(&mut line)?;
-            map.width = parse_next::<usize>(&mut line)? * 16usize;
-            map.height = parse_next::<usize>(&mut line)? * 16usize;
+            map.width = parse_next::<f32>(&mut line)? * 16.;
+            map.height = parse_next::<f32>(&mut line)? * 16.;
 
             // skip 1 line
             let _ = read_line(&mut lines)?;
@@ -307,27 +312,28 @@ mod tests {
         assert_eq!(map.tile_sources.len(), 3);
         assert_eq!(map.tile_sources[0], "graphics/road.png");
 
-        assert_eq!(map.tiles.len(), 30);
-        
+        assert_eq!(map.tiles.len(), 256);
+        assert_eq!(map.tiles[0].len(), 11);
+
         // graphics/road.png
         // 0 256 32 128
         // 2 2
-        assert_eq!(map.tiles[9].tile_source, "graphics/road.png");
-        assert_eq!(map.tiles[9].x, 0);
-        assert_eq!(map.tiles[9].y, 256);
-        assert_eq!(map.tiles[9].width, 32);
-        assert_eq!(map.tiles[9].height, 128);
-        assert_eq!(map.tiles[9].collision, true);
+        assert_eq!(map.tiles[0][9].tile_source, "graphics/road.png");
+        assert_eq!(map.tiles[0][9].x, 0.);
+        assert_eq!(map.tiles[0][9].y, 256.);
+        assert_eq!(map.tiles[0][9].width, 32);
+        assert_eq!(map.tiles[0][9].height, 128);
+        assert_eq!(map.tiles[0][9].collision, true);
 
         // graphics/level1.png
         // 0 128 128 32
         // 2 0
-        assert_eq!(map.tiles[12].tile_source, "graphics/level1.png");
-        assert_eq!(map.tiles[12].x, 0);
-        assert_eq!(map.tiles[12].y, 128);
-        assert_eq!(map.tiles[12].width, 128);
-        assert_eq!(map.tiles[12].height, 32);
-        assert_eq!(map.tiles[12].collision, false);
+        assert_eq!(map.tiles[1][1].tile_source, "graphics/level1.png");
+        assert_eq!(map.tiles[1][1].x, 0.);
+        assert_eq!(map.tiles[1][1].y, 128.);
+        assert_eq!(map.tiles[1][1].width, 128);
+        assert_eq!(map.tiles[1][1].height, 32);
+        assert_eq!(map.tiles[1][1].collision, false);
 
         assert_eq!(map.semaphore_object_index, Some(0));
         assert_eq!(map.semaphore_tiles[0], [1, 14]);
@@ -340,24 +346,24 @@ mod tests {
         assert_eq!(map.background_tiles.len(), 1541);
 
         // 128 16000 1 0
-        assert_eq!(map.background_tiles[5].x, 128);
-        assert_eq!(map.background_tiles[5].y, 16000);
+        assert_eq!(map.background_tiles[5].x, 128.);
+        assert_eq!(map.background_tiles[5].y, 16000.);
         assert_eq!(map.background_tiles[5].tile_bank, 1);
         assert_eq!(map.background_tiles[5].tile_num, 0);
 
         assert_eq!(map.middleground_tiles.len(), 1970);
 
         // 160 16256 0 0
-        assert_eq!(map.middleground_tiles[0].x, 160);
-        assert_eq!(map.middleground_tiles[0].y, 16256);
+        assert_eq!(map.middleground_tiles[0].x, 160.);
+        assert_eq!(map.middleground_tiles[0].y, 16256.);
         assert_eq!(map.middleground_tiles[0].tile_bank, 0);
         assert_eq!(map.middleground_tiles[0].tile_num, 0);
 
         assert_eq!(map.foreground_tiles.len(), 492);
 
         // 32 16256 1 6
-        assert_eq!(map.foreground_tiles[1].x, 32);
-        assert_eq!(map.foreground_tiles[1].y, 16256);
+        assert_eq!(map.foreground_tiles[1].x, 32.);
+        assert_eq!(map.foreground_tiles[1].y, 16256.);
         assert_eq!(map.foreground_tiles[1].tile_bank, 1);
         assert_eq!(map.foreground_tiles[1].tile_num, 6);
 
