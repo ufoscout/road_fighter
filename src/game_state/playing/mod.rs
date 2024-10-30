@@ -8,6 +8,7 @@ use crate::constants::WINDOW_HEIGHT;
 use super::GameGlobalState;
 
 mod components;
+mod constants;
 mod resources;
 mod systems;
 

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::game_state::GameGlobalState;
 
-use super::{components::*, resources::*};
+use super::{components::*, constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_SPEED, PLAYER_MIN_SPEED}, resources::*};
 
 /// Move to menu screen whatever key is pressed
 pub fn handle_key_pressed(
@@ -12,21 +12,45 @@ pub fn handle_key_pressed(
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
 
-    for mut car in car.iter_mut() {
-        car.speed_y = 0.;
-    }
-
+    
     if keyboard_input.pressed(KeyCode::ArrowUp) {
         for mut car in car.iter_mut() {
-            car.speed_y = -15.;
+            let speed_ration= car.speed_y/PLAYER_MAX_SPEED;
+            car.speed_y += (1. - speed_ration.abs()) * PLAYER_MAX_ACCEL_RATE;
+            car.speed_y = car.speed_y.min(PLAYER_MAX_SPEED);
+            println!("Increase Speed: {}", car.speed_y);
         }
     } else if keyboard_input.pressed(KeyCode::ArrowDown) {
         for mut car in car.iter_mut() {
-            car.speed_y = 15.;
+            let speed_ration= car.speed_y/PLAYER_MAX_SPEED;
+            car.speed_y -= (1. - speed_ration.abs()) * PLAYER_MAX_ACCEL_RATE;
+            car.speed_y = car.speed_y.max(-PLAYER_MAX_SPEED);
+            println!("Decrease Speed: {}", car.speed_y);
         }
-    } else if keyboard_input.pressed(KeyCode::ArrowLeft) {
+    } else {
+        for mut car in car.iter_mut() {
+            println!("Brake: {}", car.speed_y);
+            if car.speed_y < 0. {
+                car.speed_y += PLAYER_BRAKE_RATE;
+            } else {
+                car.speed_y -= PLAYER_BRAKE_RATE;
+            };
 
-    } else if keyboard_input.pressed(KeyCode::ArrowRight) {
+            // if speed is between -PLAYER_BRAKE_RATE and PLAYER_BRAKE_RATE, set it to 0
+            if car.speed_y.abs() <= PLAYER_BRAKE_RATE {
+                car.speed_y = 0.;
+            }
+
+        }
+    }
+
+    
+    
+    if keyboard_input.pressed(KeyCode::ArrowLeft) {
+
+    } 
+    
+    if keyboard_input.pressed(KeyCode::ArrowRight) {
         
     }
 
@@ -41,10 +65,10 @@ pub fn render_screen(
     mut map_data: Query<(&PlayingMap, &mut Transform)>,
 ) {
 
-    let race_y_position = car.single().1.speed_y;
+    let race_y_position = car.single().1.speed_y / 100.;
 
     for (_, mut transform) in map_data.iter_mut() {
-        transform.translation.y += race_y_position;
+        transform.translation.y -= race_y_position;
     }
     
 }

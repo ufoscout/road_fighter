@@ -34,7 +34,7 @@ impl Plugin for MainWindowPlugin {
                     primary_window: Some(Window {
                         title: "Road Fighter".to_string(),
                         resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT)
-                            .with_scale_factor_override(1.),
+                            .with_scale_factor_override(2.),
                         resizable: true,
                         ..default()
                     }),
