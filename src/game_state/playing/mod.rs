@@ -34,30 +34,28 @@ fn on_enter(mut playing_state: ResMut<PlayingData>,
     
     // Load the map data
     let map_data = playing_state.level.map_data();
-    let mut max_y = 0f32;
+    let mut min_y = 0f32;
     
     // Spawn background tiles
     for map_tile in map_data.background_tiles.iter() {
         let y = span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 0.);
-        max_y = max_y.max(y);
+        min_y = min_y.min(y);
     }
     
     // Spawn middleground tiles
     for map_tile in map_data.middleground_tiles.iter() {
         let y = span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 1.);
-        max_y = max_y.max(y);
+        min_y = min_y.min(y);
     }
     
     // // Spawn foreground tiles
     for map_tile in map_data.foreground_tiles.iter() {
         let y = span_map_tile(&mut commands, &asset_server, &mut texture_atlas_layouts, map_tile, map_data, 2.);
-        max_y = max_y.max(y);
+        min_y = min_y.min(y);
     }
-    
-
 
     // Spawn the player car
-    PlayerCar.spawn(&mut commands, &asset_server, &mut texture_atlas_layouts, max_y);
+    PlayerCar.spawn(&mut commands, &asset_server, &mut texture_atlas_layouts, min_y);
     
 }
 
@@ -92,7 +90,9 @@ fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_at
             )),
         },
         PlayingAll,
-        PlayingMap,
+        PlayingMap {
+            y_position: y,
+        },
     ));
 
     y

@@ -7,7 +7,7 @@ pub struct PlayerCar;
 
 impl PlayerCar {
 
-    pub fn spawn(&self, commands: &mut Commands, asset_server: &AssetServer, texture_atlas_layouts: &mut Assets<TextureAtlasLayout>, race_y_position: f32,) {
+    pub fn spawn(&self, commands: &mut Commands, asset_server: &AssetServer, texture_atlas_layouts: &mut Assets<TextureAtlasLayout>, y_position: f32,) {
 
         // Spawn the player car
         commands.spawn((
@@ -28,8 +28,10 @@ impl PlayerCar {
             },
             PlayingAll,
             PlayerOneCar {
-                speed_y: race_y_position,
-                speed_x: 0.0,
+                y_position,
+                x_position: 0.,
+                speed_y: 0.,
+                speed_x: 0.,
             },
         ));
 

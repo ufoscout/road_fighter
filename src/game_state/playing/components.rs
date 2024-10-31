@@ -9,6 +9,8 @@ pub struct PlayingAll;
 
 #[derive(Component)]
 pub struct PlayerOneCar {
+    pub y_position: f32,
+    pub x_position: f32,
     pub speed_x: f32,
     pub speed_y: f32,
 }
@@ -17,4 +19,6 @@ pub struct PlayerOneCar {
 pub struct PlayerTwoCar;
 
 #[derive(Component)]
-pub struct PlayingMap;
+pub struct PlayingMap {
+    pub y_position: f32,
+}

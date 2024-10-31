@@ -29,7 +29,7 @@ pub fn handle_key_pressed(
             car.speed_y = car.speed_y.max(-PLAYER_MAX_SPEED);
             println!("Decrease Speed: {}", car.speed_y);
     } else {
-            println!("Brake: {}", car.speed_y);
+            // println!("Brake: {}", car.speed_y);
             if car.speed_y < 0. {
                 car.speed_y += PLAYER_BRAKE_RATE;
             } else {
@@ -50,6 +50,9 @@ pub fn handle_key_pressed(
             car.speed_x = 0.;
     }
 
+    car.y_position += car.speed_y / 500.;
+    car.x_position += car.speed_x / 500.;
+
 }
 
 /// Move to menu screen whatever key is pressed
@@ -62,12 +65,10 @@ pub fn render_screen(
 ) {
 
     let mut car = car.single_mut();
-    let race_y_position = car.0.speed_y / 500.;
-    let race_x_position = car.0.speed_x / 500.;
-    car.1.translation.x += race_x_position; 
+    car.1.translation.x = car.0.x_position; 
 
-    for (_, mut transform) in map_data.iter_mut() {
-        transform.translation.y -= race_y_position;
+    for (map, mut transform) in map_data.iter_mut() {
+        transform.translation.y = map.y_position - car.0.y_position;
     }
     
 }
