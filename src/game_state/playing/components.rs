@@ -9,6 +9,7 @@ pub struct PlayingAll;
 
 #[derive(Component)]
 pub struct PlayerOneCar {
+    pub speed_x: f32,
     pub speed_y: f32,
 }
 

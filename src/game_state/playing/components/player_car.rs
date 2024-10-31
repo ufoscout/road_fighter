@@ -28,7 +28,8 @@ impl PlayerCar {
             },
             PlayingAll,
             PlayerOneCar {
-                speed_y: race_y_position
+                speed_y: race_y_position,
+                speed_x: 0.0,
             },
         ));
 
