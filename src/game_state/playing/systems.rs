@@ -12,23 +12,23 @@ pub fn handle_key_pressed(
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
 
-    
+    let mut car = car.single_mut();
+    let y_speed_ratio= (car.speed_y/PLAYER_MAX_SPEED).abs();
+    let x_speed_ratio = if (y_speed_ratio<0.1) {
+        y_speed_ratio*2.
+    } else {
+        (((y_speed_ratio-0.1)/0.9)*0.8)+0.2
+    };
+
     if keyboard_input.pressed(KeyCode::ArrowUp) {
-        for mut car in car.iter_mut() {
-            let speed_ratio= car.speed_y/PLAYER_MAX_SPEED;
-            car.speed_y += (1. - speed_ratio.abs()) * PLAYER_MAX_ACCEL_RATE;
+            car.speed_y += (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE;
             car.speed_y = car.speed_y.min(PLAYER_MAX_SPEED);
             println!("Increase Speed: {}", car.speed_y);
-        }
     } else if keyboard_input.pressed(KeyCode::ArrowDown) {
-        for mut car in car.iter_mut() {
-            let speed_ratio= car.speed_y/PLAYER_MAX_SPEED;
-            car.speed_y -= (1. - speed_ratio.abs()) * PLAYER_MAX_ACCEL_RATE;
+            car.speed_y -= (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE;
             car.speed_y = car.speed_y.max(-PLAYER_MAX_SPEED);
             println!("Decrease Speed: {}", car.speed_y);
-        }
     } else {
-        for mut car in car.iter_mut() {
             println!("Brake: {}", car.speed_y);
             if car.speed_y < 0. {
                 car.speed_y += PLAYER_BRAKE_RATE;
@@ -40,38 +40,14 @@ pub fn handle_key_pressed(
             if car.speed_y.abs() <= PLAYER_BRAKE_RATE {
                 car.speed_y = 0.;
             }
-
-        }
     }
-
-    
     
     if keyboard_input.pressed(KeyCode::ArrowLeft) {
-        for mut car in car.iter_mut() {
-            let speed_ratio= (car.speed_y/PLAYER_MAX_SPEED).abs();
-            let speed_ratio = if (speed_ratio<0.1) {
-                speed_ratio*2.
-            } else {
-                (((speed_ratio-0.1)/0.9)*0.8)+0.2
-            };
-            car.speed_x -= speed_ratio * PLAYER_MAX_HSPEED;
-            car.speed_x = car.speed_x.max(-PLAYER_MAX_HSPEED);
-        }
+            car.speed_x = -x_speed_ratio * PLAYER_MAX_HSPEED;
     } else if keyboard_input.pressed(KeyCode::ArrowRight){
-        for mut car in car.iter_mut() {
-            let speed_ratio= (car.speed_y/PLAYER_MAX_SPEED).abs();
-            let speed_ratio = if (speed_ratio<0.1) {
-                speed_ratio*2.
-            } else {
-                (((speed_ratio-0.1)/0.9)*0.8)+0.2
-            };
-            car.speed_x += speed_ratio * PLAYER_MAX_HSPEED;
-            car.speed_x = car.speed_x.min(PLAYER_MAX_HSPEED);
-        }
+            car.speed_x = x_speed_ratio * PLAYER_MAX_HSPEED;
     } else {
-        for mut car in car.iter_mut() {
-                car.speed_x = 0.;
-        }
+            car.speed_x = 0.;
     }
 
 }
