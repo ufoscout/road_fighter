@@ -1,3 +1,4 @@
+use avian2d::prelude::*;
 use bevy::prelude::*;
 
 use crate::game_state::GameGlobalState;
@@ -9,14 +10,16 @@ pub fn handle_key_pressed(
     time: Res<Time>,
     mut next_state: ResMut<NextState<GameGlobalState>>,
     mut playing_data: ResMut<PlayingData>,
-    mut car: Query<&mut PlayerOneCar>,
+    mut car: Query<(&mut PlayerOneCar, &mut LinearVelocity)>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     let delta = time.delta_seconds();
 
-    let mut car = car.single_mut();
+    for (mut car, mut velocity) in car.iter_mut() {
+
+    // let (mut car, mut velocity) = car.single_mut();
     let y_speed_ratio= (car.speed_y/PLAYER_MAX_SPEED).abs();
-    println!("Speed Ratio: {}", y_speed_ratio);
+
     let x_speed_ratio = if (y_speed_ratio<0.1) {
         y_speed_ratio*2.
     } else {
@@ -26,11 +29,11 @@ pub fn handle_key_pressed(
     if keyboard_input.pressed(KeyCode::ArrowUp) {
             car.speed_y += (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;
             car.speed_y = car.speed_y.min(PLAYER_MAX_SPEED);
-            println!("Increase Speed: {}", car.speed_y);
+            // println!("Increase Speed: {}", car.speed_y);
     } else if keyboard_input.pressed(KeyCode::ArrowDown) {
             car.speed_y -= (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;
             car.speed_y = car.speed_y.max(-PLAYER_MAX_SPEED);
-            println!("Decrease Speed: {}", car.speed_y);
+            // println!("Decrease Speed: {}", car.speed_y);
     } else {
             // println!("Brake: {}", car.speed_y);
             if car.speed_y < 0. {
@@ -56,7 +59,7 @@ pub fn handle_key_pressed(
     let position_ratio = 1. / 7.;
     car.y_position += car.speed_y * delta * position_ratio;
     car.x_position += car.speed_x * delta * position_ratio;
-
+    }
 }
 
 pub fn render_screen(
@@ -74,4 +77,14 @@ pub fn render_screen(
         transform.translation.y = map.y_position - car.0.y_position;
     }
     
+}
+
+pub fn print_started_collisions(mut collision_event_reader: EventReader<CollisionStarted>) {
+    for CollisionStarted(entity1, entity2) in collision_event_reader.read() {
+        println!(
+            "Entities {:?} and {:?} started colliding",
+            entity1,
+            entity2,
+        );
+    }
 }

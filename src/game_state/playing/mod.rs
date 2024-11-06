@@ -1,4 +1,5 @@
-use bevy::{prelude::*, render::texture};
+use avian2d::prelude::*;
+use bevy::{math::vec2, prelude::*};
 use components::{map::{MapData, MapTile}, *};
 use player_car::PlayerCar;
 use resources::*;
@@ -18,22 +19,22 @@ pub struct PlayingStatePlugin;
 impl Plugin for PlayingStatePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayingData>()
+            .insert_resource(Gravity::ZERO)
+            .add_plugins((PhysicsPlugins::default(), PhysicsDebugPlugin::default()))
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(
                 Update,
-                (systems::handle_key_pressed, systems::render_screen).run_if(in_state(GameGlobalState::Playing)),
+                (systems::handle_key_pressed, systems::render_screen, systems::print_started_collisions).run_if(in_state(GameGlobalState::Playing)),
             );
     }
 }
 
-fn on_enter(mut playing_state: ResMut<PlayingData>,
+fn on_enter(mut playing_data: ResMut<PlayingData>,
     mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,) {
-    *playing_state = Default::default();
-
-    
+    *playing_data = Default::default();
     
     // Load the map data
-    let map_data = playing_state.level.map_data();
+    let map_data = playing_data.level.map_data();
     let mut min_y = 0f32;
     
     // Spawn background tiles
@@ -73,28 +74,59 @@ fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_at
     let x = map_tile.x - half_screen_x + tile_data.width as f32 / 2.0;
     let y = half_screen_y - map_tile.y - tile_data.height as f32 / 2.0;
 
-    // Spawn the object
-    commands.spawn((
-        SpriteBundle {
-            texture: asset_server.load(&tile_data.tile_source),
-            transform: Transform::from_translation(Vec3::new(x, y, z)),
-            ..default()
-        },
-        TextureAtlas {
-            index: 0,
-            layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-                UVec2::new(tile_data.width, tile_data.height),
-                1,
-                1,
-                None,
-                Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
-            )),
-        },
-        PlayingAll,
-        PlayingMap {
-            y_position: y,
-        },
-    ));
+    if tile_data.tile_source.contains("road.png") && tile_data.x == 0. && tile_data.y == 128. {
+        println!("Road tile: x: {}, y: {}",tile_data.x, tile_data.y);
+
+                // Spawn the object
+                commands.spawn((
+                    SpriteBundle {
+                        texture: asset_server.load(&tile_data.tile_source),
+                        transform: Transform::from_translation(Vec3::new(x, y, z)),
+                        ..default()
+                    },
+                    TextureAtlas {
+                        index: 0,
+                        layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+                            UVec2::new(tile_data.width, tile_data.height),
+                            1,
+                            1,
+                            None,
+                            Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
+                        )),
+                    },
+                    PlayingAll,
+                    PlayingMap {
+                        y_position: y,
+                    },
+                    Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 64.) ], None),
+                    RigidBody::Static,
+                    DebugRender::default().with_collider_color(Color::WHITE),
+                ));
+
+    } else {
+        // Spawn the object
+        commands.spawn((
+            SpriteBundle {
+                texture: asset_server.load(&tile_data.tile_source),
+                transform: Transform::from_translation(Vec3::new(x, y, z)),
+                ..default()
+            },
+            TextureAtlas {
+                index: 0,
+                layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+                    UVec2::new(tile_data.width, tile_data.height),
+                    1,
+                    1,
+                    None,
+                    Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
+                )),
+            },
+            PlayingAll,
+            PlayingMap {
+                y_position: y,
+            },
+        ));
+    }
 
     y
 }

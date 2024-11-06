@@ -1,3 +1,4 @@
+use avian2d::prelude::*;
 use bevy::prelude::*;
 
 use super::*;
@@ -33,6 +34,9 @@ impl PlayerCar {
                 speed_y: 0.,
                 speed_x: 0.,
             },
+            Collider::circle(10.),
+            RigidBody::Kinematic,
+            DebugRender::default().with_collider_color(Color::WHITE),
         ));
 
     }
