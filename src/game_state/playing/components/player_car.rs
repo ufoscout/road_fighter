@@ -1,5 +1,5 @@
 use avian2d::prelude::*;
-use bevy::prelude::*;
+use bevy::{math::vec2, prelude::*};
 
 use super::*;
 
@@ -34,7 +34,15 @@ impl PlayerCar {
                 speed_y: 0.,
                 speed_x: 0.,
             },
-            Collider::circle(10.),
+            Collider::polyline(vec![
+                vec2(-9., -15.),
+                vec2(-9., 10.),
+                vec2(-5., 15.), 
+                vec2( 2., 15.), 
+                vec2( 6., 10.), 
+                vec2( 6., -15.), 
+                vec2(-9., -15.),
+                ], None),
             RigidBody::Kinematic,
             DebugRender::default().with_collider_color(Color::WHITE),
         ));
