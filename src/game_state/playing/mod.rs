@@ -55,6 +55,7 @@ fn on_enter(mut playing_state: ResMut<PlayingData>,
     }
 
     // Spawn the player car
+    min_y += WINDOW_HEIGHT / 2.0;
     PlayerCar.spawn(&mut commands, &asset_server, &mut texture_atlas_layouts, min_y);
     
 }
