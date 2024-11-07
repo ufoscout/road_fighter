@@ -13,9 +13,9 @@ pub struct PlayingData {
 // The different game levels
 #[derive(Debug, PartialEq, Default)]
 pub enum PlayingLevel {
-    #[default]
     LevelOne,
     LevelTwo,
+    #[default]
     LevelThree,
     LevelFour,
     LevelFive,

@@ -1,3 +1,4 @@
+use assets::{colliders, AssetKey};
 use avian2d::prelude::*;
 use bevy::{math::vec2, prelude::*};
 use components::{map::{MapData, MapTile}, *};
@@ -8,6 +9,7 @@ use crate::constants::WINDOW_HEIGHT;
 
 use super::GameGlobalState;
 
+mod assets;
 mod components;
 mod constants;
 mod resources;
@@ -20,7 +22,7 @@ impl Plugin for PlayingStatePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayingData>()
             .insert_resource(Gravity::ZERO)
-            .add_plugins((PhysicsPlugins::default(), PhysicsDebugPlugin::default()))
+            .add_plugins((PhysicsPlugins::default()))
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(
                 Update,
@@ -74,35 +76,36 @@ fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_at
     let x = map_tile.x - half_screen_x + tile_data.width as f32 / 2.0;
     let y = half_screen_y - map_tile.y - tile_data.height as f32 / 2.0;
 
-    if tile_data.tile_source.contains("road.png") && tile_data.x == 0. && tile_data.y == 128. {
-        println!("Road tile: x: {}, y: {}",tile_data.x, tile_data.y);
-
-                // Spawn the object
-                commands.spawn((
-                    SpriteBundle {
-                        texture: asset_server.load(&tile_data.tile_source),
-                        transform: Transform::from_translation(Vec3::new(x, y, z)),
-                        ..default()
-                    },
-                    TextureAtlas {
-                        index: 0,
-                        layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-                            UVec2::new(tile_data.width, tile_data.height),
-                            1,
-                            1,
-                            None,
-                            Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
-                        )),
-                    },
-                    PlayingAll,
-                    PlayingMap {
-                        y_position: y,
-                    },
-                    Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 64.) ], None),
-                    RigidBody::Static,
-                    DebugRender::default().with_collider_color(Color::WHITE),
-                ));
-
+    if let Some(collider) = colliders().get(&AssetKey {
+        tile_source: &tile_data.tile_source,
+        x: tile_data.x as u32,
+        y: tile_data.y as u32,
+    }) {
+        // Spawn the object
+        commands.spawn((
+            SpriteBundle {
+                texture: asset_server.load(&tile_data.tile_source),
+                transform: Transform::from_translation(Vec3::new(x, y, z)),
+                ..default()
+            },
+            TextureAtlas {
+                index: 0,
+                layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+                    UVec2::new(tile_data.width, tile_data.height),
+                    1,
+                    1,
+                    None,
+                    Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
+                )),
+            },
+            PlayingAll,
+            PlayingMap {
+                y_position: y,
+            },
+            collider.clone(),
+            RigidBody::Static,
+            DebugRender::default().with_collider_color(Color::WHITE),
+        ));
     } else {
         // Spawn the object
         commands.spawn((

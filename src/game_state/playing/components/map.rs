@@ -26,11 +26,11 @@ pub struct MapData {
 #[derive(Debug, Default)]
 pub struct TileData {
     pub tile_source: String,
-    pub x: f32,
-    pub y: f32,
+    pub x: u32,
+    pub y: u32,
     pub width: u32,
     pub height: u32,
-    pub collision: bool,
+    // pub collision: bool,
 }
 
 /// Represents a tile in the map
@@ -105,7 +105,7 @@ impl MapData {
                     let mut line: SplitWhitespace<'_> = line.split_whitespace();
                     let _ = parse_next::<u8>(&mut line);
 
-                    tile_data.collision = parse_next::<u8>(&mut line)? == 2;
+                    // tile_data.collision = parse_next::<u8>(&mut line)? == 2;
 
                     // Add tile to map
                     tiles_bank.push(tile_data);
@@ -319,21 +319,21 @@ mod tests {
         // 0 256 32 128
         // 2 2
         assert_eq!(map.tiles[0][9].tile_source, "graphics/road.png");
-        assert_eq!(map.tiles[0][9].x, 0.);
-        assert_eq!(map.tiles[0][9].y, 256.);
+        assert_eq!(map.tiles[0][9].x, 0);
+        assert_eq!(map.tiles[0][9].y, 256);
         assert_eq!(map.tiles[0][9].width, 32);
         assert_eq!(map.tiles[0][9].height, 128);
-        assert_eq!(map.tiles[0][9].collision, true);
+        // assert_eq!(map.tiles[0][9].collision, true);
 
         // graphics/level1.png
         // 0 128 128 32
         // 2 0
         assert_eq!(map.tiles[1][1].tile_source, "graphics/level1.png");
-        assert_eq!(map.tiles[1][1].x, 0.);
-        assert_eq!(map.tiles[1][1].y, 128.);
+        assert_eq!(map.tiles[1][1].x, 0);
+        assert_eq!(map.tiles[1][1].y, 128);
         assert_eq!(map.tiles[1][1].width, 128);
         assert_eq!(map.tiles[1][1].height, 32);
-        assert_eq!(map.tiles[1][1].collision, false);
+        // assert_eq!(map.tiles[1][1].collision, false);
 
         assert_eq!(map.semaphore_object_index, Some(0));
         assert_eq!(map.semaphore_tiles[0], [1, 14]);
