@@ -8,8 +8,6 @@ use super::{components::*, constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE,
 /// Move to menu screen whatever key is pressed
 pub fn handle_key_pressed(
     time: Res<Time>,
-    mut next_state: ResMut<NextState<GameGlobalState>>,
-    mut playing_data: ResMut<PlayingData>,
     mut car: Query<(&mut PlayerOneCar)>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
@@ -60,10 +58,17 @@ pub fn handle_key_pressed(
     // }
 }
 
+pub fn map_collisions(
+    map: Query<(&PlayingMap, &CollidingEntities)>,
+) {
+    for (map, collisions) in map.iter() {
+        collisions.iter().for_each(|entity| {
+            println!("Map collision with entity {:?}", entity);
+        });
+    }
+}
+
 pub fn render_screen(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    introduction_state: Res<PlayingData>,
     mut car: Query<(&mut PlayerOneCar, &mut Transform)>,
     mut map_data: Query<(&PlayingMap, &mut Transform), Without<PlayerOneCar>>,
 ) {

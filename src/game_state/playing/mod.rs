@@ -1,6 +1,6 @@
 use assets::{colliders, AssetKey};
 use avian2d::prelude::*;
-use bevy::{math::vec2, prelude::*};
+use bevy::prelude::*;
 use components::{map::{MapData, MapTile}, *};
 use player_car::PlayerCar;
 use resources::*;
@@ -23,11 +23,16 @@ impl Plugin for PlayingStatePlugin {
         app.init_resource::<PlayingData>()
             .insert_resource(Gravity::ZERO)
             .add_plugins(PhysicsPlugins::default())
-            // .add_plugins(PhysicsDebugPlugin::default())
+            .add_plugins(PhysicsDebugPlugin::default())
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(
                 Update,
-                (systems::handle_key_pressed, systems::render_screen, systems::print_started_collisions).run_if(in_state(GameGlobalState::Playing)),
+                (
+                    systems::handle_key_pressed,
+                    systems::render_screen, 
+                    systems::print_started_collisions,
+                systems::map_collisions,
+            ).run_if(in_state(GameGlobalState::Playing)),
             );
     }
 }

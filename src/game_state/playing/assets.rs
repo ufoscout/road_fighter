@@ -19,25 +19,25 @@ pub fn colliders<'a>() -> HashMap<AssetKey<'a>, Collider> {
             tile_source: "graphics/road.png",
             x: 0,
             y: 128,
-        }, Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 64.) ], None));
+        }, Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 63.) ], None));
         
         assets.insert(AssetKey {
             tile_source: "graphics/road.png",
             x: 0,
             y: 256,
-        }, Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 64.) ], None));
+        }, Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 63.) ], None));
         
         assets.insert(AssetKey {
             tile_source: "graphics/road.png",
             x: 192,
             y: 128,
-        }, Collider::polyline(vec![vec2(11., -64.), vec2(-5., 64.) ], None));
+        }, Collider::polyline(vec![vec2(11., -64.), vec2(-5., 63.) ], None));
     
         assets.insert(AssetKey {
             tile_source: "graphics/road.png",
             x: 192,
             y: 256,
-        }, Collider::polyline(vec![vec2(-5., -64.), vec2(11., 64.) ], None));
+        }, Collider::polyline(vec![vec2(-5., -64.), vec2(11., 63.) ], None));
             
     }
     
@@ -48,25 +48,25 @@ pub fn colliders<'a>() -> HashMap<AssetKey<'a>, Collider> {
             tile_source: "graphics/road.png",
             x: 96,
             y: 128,
-        }, Collider::polyline(vec![vec2(4., -64.), vec2(4., 64.) ], None));
+        }, Collider::polyline(vec![vec2(4., -64.), vec2(4., 63.) ], None));
         
         assets.insert(AssetKey {
             tile_source: "graphics/road.png",
             x: 96,
             y: 256,
-        }, Collider::polyline(vec![vec2(4., -64.), vec2(4., 64.) ], None));
+        }, Collider::polyline(vec![vec2(4., -64.), vec2(4., 63.) ], None));
 
         assets.insert(AssetKey {
             tile_source: "graphics/road.png",
             x: 288,
             y: 128,
-        }, Collider::polyline(vec![vec2(4., -64.), vec2(-12., 64.) ], None));
+        }, Collider::polyline(vec![vec2(4., -64.), vec2(-12., 63.) ], None));
     
         assets.insert(AssetKey {
             tile_source: "graphics/road.png",
             x: 288,
             y: 256,
-        }, Collider::polyline(vec![vec2(-12., -64.), vec2(4., 64.) ], None));
+        }, Collider::polyline(vec![vec2(-12., -64.), vec2(4., 63.) ], None));
     }
 
     // Bridge
@@ -76,13 +76,13 @@ pub fn colliders<'a>() -> HashMap<AssetKey<'a>, Collider> {
             tile_source: "graphics/road.png",
             x: 400,
             y: 128,
-        }, Collider::polyline(vec![vec2(-11., -64.), vec2(-11., 64.) ], None));
+        }, Collider::polyline(vec![vec2(-11., -64.), vec2(-11., 63.) ], None));
         
         assets.insert(AssetKey {
             tile_source: "graphics/road.png",
             x: 400,
             y: 256,
-        }, Collider::polyline(vec![vec2(-1., -64.), vec2(-1., 64.) ], None));
+        }, Collider::polyline(vec![vec2(-1., -64.), vec2(-1., 63.) ], None));
 
     }
 
