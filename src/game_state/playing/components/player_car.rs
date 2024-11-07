@@ -44,7 +44,7 @@ impl PlayerCar {
                 vec2(-9., -15.),
                 ], None),
             RigidBody::Kinematic,
-            DebugRender::default().with_collider_color(Color::WHITE),
+            // DebugRender::default().with_collider_color(Color::WHITE),
         ));
 
     }

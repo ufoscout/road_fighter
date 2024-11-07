@@ -10,14 +10,14 @@ pub fn handle_key_pressed(
     time: Res<Time>,
     mut next_state: ResMut<NextState<GameGlobalState>>,
     mut playing_data: ResMut<PlayingData>,
-    mut car: Query<(&mut PlayerOneCar, &mut LinearVelocity)>,
+    mut car: Query<(&mut PlayerOneCar)>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     let delta = time.delta_seconds();
 
-    for (mut car, mut velocity) in car.iter_mut() {
+    // for (mut car, mut velocity) in car.iter_mut() {
 
-    // let (mut car, mut velocity) = car.single_mut();
+    let (mut car) = car.single_mut();
     let y_speed_ratio= (car.speed_y/PLAYER_MAX_SPEED).abs();
 
     let x_speed_ratio = if (y_speed_ratio<0.1) {
@@ -26,14 +26,10 @@ pub fn handle_key_pressed(
         (((y_speed_ratio-0.1)/0.9)*0.8)+0.2
     };
 
-    if keyboard_input.pressed(KeyCode::ArrowUp) {
+    if keyboard_input.pressed(KeyCode::Space) {
             car.speed_y += (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;
             car.speed_y = car.speed_y.min(PLAYER_MAX_SPEED);
             // println!("Increase Speed: {}", car.speed_y);
-    } else if keyboard_input.pressed(KeyCode::ArrowDown) {
-            car.speed_y -= (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;
-            car.speed_y = car.speed_y.max(-PLAYER_MAX_SPEED);
-            // println!("Decrease Speed: {}", car.speed_y);
     } else {
             // println!("Brake: {}", car.speed_y);
             if car.speed_y < 0. {
@@ -56,10 +52,12 @@ pub fn handle_key_pressed(
             car.speed_x = 0.;
     }
 
-    let position_ratio = 1. / 7.;
+    let position_ratio = 1. / 8.;
     car.y_position += car.speed_y * delta * position_ratio;
     car.x_position += car.speed_x * delta * position_ratio;
-    }
+    // println!("Speed x: {}", car.speed_x);
+    // println!("Posit y: {}", car.x_position);
+    // }
 }
 
 pub fn render_screen(

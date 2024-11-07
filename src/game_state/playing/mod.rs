@@ -22,7 +22,8 @@ impl Plugin for PlayingStatePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayingData>()
             .insert_resource(Gravity::ZERO)
-            .add_plugins((PhysicsPlugins::default()))
+            .add_plugins(PhysicsPlugins::default())
+            // .add_plugins(PhysicsDebugPlugin::default())
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(
                 Update,
@@ -104,7 +105,7 @@ fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_at
             },
             collider.clone(),
             RigidBody::Static,
-            DebugRender::default().with_collider_color(Color::WHITE),
+            // DebugRender::default().with_collider_color(Color::WHITE),
         ));
     } else {
         // Spawn the object
