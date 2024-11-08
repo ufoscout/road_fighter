@@ -1,7 +1,8 @@
 use bevy::{log::LogPlugin, prelude::*, render::camera::ScalingMode, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{
-    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin, playing::PlayingStatePlugin, GameGlobalState
+    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin,
+    menu::MenuStatePlugin, playing::PlayingStatePlugin, GameGlobalState,
 };
 
 mod constants;
@@ -30,25 +31,25 @@ impl Plugin for MainWindowPlugin {
             .add_systems(Startup, setup)
             // Set up the main window
             .add_plugins(
-                DefaultPlugins.set(WindowPlugin {
-                    primary_window: Some(Window {
-                        title: "Road Fighter".to_string(),
-                        resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT)
-                            .with_scale_factor_override(2.),
-                        resizable: true,
+                DefaultPlugins
+                    .set(WindowPlugin {
+                        primary_window: Some(Window {
+                            title: "Road Fighter".to_string(),
+                            resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT)
+                                .with_scale_factor_override(2.),
+                            resizable: true,
+                            ..default()
+                        }),
+                        ..default()
+                    })
+                    // Setting the texture filtering mode to Nearest (and not Linear) makes the pixels to appear crisp instead of blurry
+                    // .set(ImagePlugin::default_nearest())
+                    .set(LogPlugin {
+                        filter: "warn,road_fighter=debug".into(),
+                        level: bevy::log::Level::WARN,
                         ..default()
                     }),
-                    ..default()
-                })
-                // Setting the texture filtering mode to Nearest (and not Linear) makes the pixels to appear crisp instead of blurry
-                // .set(ImagePlugin::default_nearest())
-                .set(LogPlugin {
-                    filter: "warn,road_fighter=debug".into(),
-                    level: bevy::log::Level::WARN,
-                    ..default()
-                }),
             );
-
     }
 }
 
@@ -73,5 +74,4 @@ fn setup(mut commands: Commands) {
         },
         ..default()
     });
-
 }

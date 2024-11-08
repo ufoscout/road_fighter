@@ -2,7 +2,10 @@ use bevy::prelude::*;
 
 use crate::game_state::GameGlobalState;
 
-use super::{components::*, resources::{IntroductionData, IntroductionStep}};
+use super::{
+    components::*,
+    resources::{IntroductionData, IntroductionStep},
+};
 
 /// Move to menu screen whatever key is pressed
 pub fn handle_key_pressed(
@@ -25,33 +28,31 @@ pub fn render_screen(
     introduction_state: Res<IntroductionData>,
     background: Query<(Entity, &IntroductionBackground)>,
 ) {
+    background.iter().for_each(|(entity, _)| {
+        commands.entity(entity).despawn();
+    });
 
-        background.iter().for_each(|(entity, _)| {
-            commands.entity(entity).despawn();
-        });
-
-        match introduction_state.step {
-            IntroductionStep::StepOne => {
-                commands.spawn((
-                    SpriteBundle {
-                        texture: asset_server.load("graphics/retroremakes.png"),
-                        ..default()
-                    },
-                    IntroductionAll,
-                    IntroductionBackground,
-                ));
-            }
-            IntroductionStep::StepTwo => {
-                commands.spawn((
-                    SpriteBundle {
-                        texture: asset_server.load("graphics/konami2.png"),
-                        ..default()
-                    },
-                    IntroductionAll,
-                    IntroductionBackground,
-                ));
-            }
-            IntroductionStep::End => {}
+    match introduction_state.step {
+        IntroductionStep::StepOne => {
+            commands.spawn((
+                SpriteBundle {
+                    texture: asset_server.load("graphics/retroremakes.png"),
+                    ..default()
+                },
+                IntroductionAll,
+                IntroductionBackground,
+            ));
         }
-    
+        IntroductionStep::StepTwo => {
+            commands.spawn((
+                SpriteBundle {
+                    texture: asset_server.load("graphics/konami2.png"),
+                    ..default()
+                },
+                IntroductionAll,
+                IntroductionBackground,
+            ));
+        }
+        IntroductionStep::End => {}
+    }
 }

@@ -1,4 +1,9 @@
-use std::{io::{BufRead, BufReader, Lines, Read}, path::Path, str::{FromStr, SplitWhitespace}, sync::OnceLock};
+use std::{
+    io::{BufRead, BufReader, Lines, Read},
+    path::Path,
+    str::{FromStr, SplitWhitespace},
+    sync::OnceLock,
+};
 
 use bevy::prelude::*;
 
@@ -23,7 +28,6 @@ pub enum PlayingLevel {
 }
 
 impl PlayingLevel {
-
     pub const ALL: [PlayingLevel; 6] = [
         PlayingLevel::LevelOne,
         PlayingLevel::LevelTwo,
@@ -39,27 +43,27 @@ impl PlayingLevel {
             PlayingLevel::LevelOne => {
                 static MAP: OnceLock<MapData> = OnceLock::new();
                 MAP.get_or_init(|| MapData::from_file("data/maps/level1.mg2").unwrap())
-            },
+            }
             PlayingLevel::LevelTwo => {
                 static MAP: OnceLock<MapData> = OnceLock::new();
                 MAP.get_or_init(|| MapData::from_file("data/maps/level2.mg2").unwrap())
-            },
+            }
             PlayingLevel::LevelThree => {
                 static MAP: OnceLock<MapData> = OnceLock::new();
                 MAP.get_or_init(|| MapData::from_file("data/maps/level3.mg2").unwrap())
-            },
+            }
             PlayingLevel::LevelFour => {
                 static MAP: OnceLock<MapData> = OnceLock::new();
                 MAP.get_or_init(|| MapData::from_file("data/maps/level4.mg2").unwrap())
-            },
+            }
             PlayingLevel::LevelFive => {
                 static MAP: OnceLock<MapData> = OnceLock::new();
                 MAP.get_or_init(|| MapData::from_file("data/maps/level5.mg2").unwrap())
-            },
+            }
             PlayingLevel::LevelSix => {
                 static MAP: OnceLock<MapData> = OnceLock::new();
                 MAP.get_or_init(|| MapData::from_file("data/maps/level6.mg2").unwrap())
-            },
+            }
         }
     }
 }
@@ -81,7 +85,6 @@ pub struct MapData {
 
     pub width: f32,
     pub height: f32,
-
 }
 
 /// Represents the data of a tile read from a mg2 file
@@ -105,7 +108,6 @@ pub struct MapTile {
 }
 
 impl MapData {
-
     /// Load a map from a file
     pub fn from_file<P: AsRef<Path>>(file: P) -> Result<MapData, GameError> {
         let mut reader = std::fs::File::open(file)?;
@@ -114,7 +116,6 @@ impl MapData {
 
     /// Load a map from a reader
     pub fn from_reader(reader: &mut dyn Read) -> Result<MapData, GameError> {
-
         let mut map = MapData::default();
 
         // Load tile sources
@@ -140,14 +141,13 @@ impl MapData {
         {
             // each map has exactly 256 tiles
             for _ in 0..256 {
-
                 let mut tiles_bank = vec![];
 
                 let line = read_line(&mut lines)?;
                 let mut line: SplitWhitespace<'_> = line.split_whitespace();
                 let _: String = parse_next(&mut line)?;
                 let tiles_count: usize = parse_next(&mut line)?;
-    
+
                 for _ in 0..tiles_count {
                     // Firts line
                     let mut tile_data = TileData::default();
@@ -161,7 +161,7 @@ impl MapData {
                     tile_data.y = parse_next(&mut line)?;
                     tile_data.width = parse_next(&mut line)?;
                     tile_data.height = parse_next(&mut line)?;
-    
+
                     // Third line
                     let line = read_line(&mut lines)?;
                     let mut line: SplitWhitespace<'_> = line.split_whitespace();
@@ -174,7 +174,6 @@ impl MapData {
                 }
 
                 map.tiles.push(tiles_bank);
-
             }
         }
 
@@ -196,7 +195,7 @@ impl MapData {
                 if object_name.to_lowercase() == "\"semaphore\"" {
                     map.semaphore_object_index = Some(object_index);
                 }
-                
+
                 // Second line
                 let line = read_line(&mut lines)?;
                 let mut line = line.split_whitespace();
@@ -269,97 +268,117 @@ impl MapData {
 
             // we are now at line 409 of the level1.map file
             // background tiles
-            parse_objects_and_tiles(&mut lines, &mut map.background_tiles, map.semaphore_object_index)?;
+            parse_objects_and_tiles(
+                &mut lines,
+                &mut map.background_tiles,
+                map.semaphore_object_index,
+            )?;
 
             // we are now at line 1953 of the level1.map file
             // middleground
-            parse_objects_and_tiles(&mut lines, &mut map.middleground_tiles, map.semaphore_object_index)?;
+            parse_objects_and_tiles(
+                &mut lines,
+                &mut map.middleground_tiles,
+                map.semaphore_object_index,
+            )?;
 
             // we are now at line 3925 of the level1.map file
             // foreground
-            parse_objects_and_tiles(&mut lines, &mut map.foreground_tiles, map.semaphore_object_index)?;
-
+            parse_objects_and_tiles(
+                &mut lines,
+                &mut map.foreground_tiles,
+                map.semaphore_object_index,
+            )?;
         }
-
 
         Ok(map)
     }
-
 }
 
 /// Read objects and tiles from the map file
-fn parse_objects_and_tiles(lines: &mut Lines<BufReader<&mut dyn Read>>, tiles: &mut Vec<MapTile>, semaphore_object_index: Option<usize>) -> Result<(), GameError> {
-                // background tiles
-                {
-                    let line = read_line(lines)?;
-                    // println!("background tiles line: {}", line);
-                    let mut line = line.split_whitespace();
-                    let count: usize = parse_next(&mut line)?;
-    
-                    for _ in 0..count {
-                        let line = read_line(lines)?;
-                        let mut line = line.split_whitespace();
-                        
-                        let tile = MapTile {
-                            x: parse_next(&mut line)?,
-                            y: parse_next(&mut line)?,
-                            tile_bank: parse_next(&mut line)?,
-                            tile_num: parse_next(&mut line)?,
-                        };
-                        tiles.push(tile);
-                    }
-                }
-                
-                // we are now at line 1951 of the level1.map file
-                
-                // background objects
-                {
-                    let line = read_line(lines)?;
-                    // println!("background objects line: {}", line);
-                    let mut line = line.split_whitespace();
-                    let count: usize = parse_next(&mut line)?;
-                    
-                    for _ in 0..count {
-                        let line = read_line(lines)?;
-                        let mut line = line.split_whitespace();
-    
-                        let _x: usize = parse_next(&mut line)?;
-                        let _y: usize = parse_next(&mut line)?;
-    
-                        let line = read_line(lines)?;
-                        let mut line = line.split_whitespace();
-    
-                        let index: usize = parse_next(&mut line)?;
-    
-                        if Some(index)  == semaphore_object_index {
-                            let TODO = 0;
-                            println!("TODO: semaphore background object found");
-                        }
-                    }
-                }
-            Ok(())
+fn parse_objects_and_tiles(
+    lines: &mut Lines<BufReader<&mut dyn Read>>,
+    tiles: &mut Vec<MapTile>,
+    semaphore_object_index: Option<usize>,
+) -> Result<(), GameError> {
+    // background tiles
+    {
+        let line = read_line(lines)?;
+        // println!("background tiles line: {}", line);
+        let mut line = line.split_whitespace();
+        let count: usize = parse_next(&mut line)?;
+
+        for _ in 0..count {
+            let line = read_line(lines)?;
+            let mut line = line.split_whitespace();
+
+            let tile = MapTile {
+                x: parse_next(&mut line)?,
+                y: parse_next(&mut line)?,
+                tile_bank: parse_next(&mut line)?,
+                tile_num: parse_next(&mut line)?,
+            };
+            tiles.push(tile);
+        }
+    }
+
+    // we are now at line 1951 of the level1.map file
+
+    // background objects
+    {
+        let line = read_line(lines)?;
+        // println!("background objects line: {}", line);
+        let mut line = line.split_whitespace();
+        let count: usize = parse_next(&mut line)?;
+
+        for _ in 0..count {
+            let line = read_line(lines)?;
+            let mut line = line.split_whitespace();
+
+            let _x: usize = parse_next(&mut line)?;
+            let _y: usize = parse_next(&mut line)?;
+
+            let line = read_line(lines)?;
+            let mut line = line.split_whitespace();
+
+            let index: usize = parse_next(&mut line)?;
+
+            if Some(index) == semaphore_object_index {
+                let TODO = 0;
+                println!("TODO: semaphore background object found");
+            }
+        }
+    }
+    Ok(())
 }
 
 /// reads a line from the reader
 fn read_line(reader: &mut Lines<BufReader<&mut dyn Read>>) -> Result<String, GameError> {
-    let line = reader.next().ok_or_else(|| GameError::ParseError("Unexpected EOF".to_owned()))??;
+    let line = reader
+        .next()
+        .ok_or_else(|| GameError::ParseError("Unexpected EOF".to_owned()))??;
     Ok(line)
 }
 
 /// reads a line from the reader and splits it into words
-fn parse_next<T: FromStr>(split: &mut SplitWhitespace) -> Result<T, GameError> 
-where <T as FromStr>::Err: std::fmt::Debug
+fn parse_next<T: FromStr>(split: &mut SplitWhitespace) -> Result<T, GameError>
+where
+    <T as FromStr>::Err: std::fmt::Debug,
 {
-    let sources_count = split.next().ok_or_else(|| GameError::ParseError(format!("Expected no more split entries to parse")))?;
-    let parsed: T = sources_count.parse().map_err(|err| GameError::ParseError(format!("Cannot parse as usize: {err:?}")))?;
+    let sources_count = split
+        .next()
+        .ok_or_else(|| GameError::ParseError(format!("Expected no more split entries to parse")))?;
+    let parsed: T = sources_count
+        .parse()
+        .map_err(|err| GameError::ParseError(format!("Cannot parse as usize: {err:?}")))?;
     Ok(parsed)
 }
 
 #[cfg(test)]
 mod tests {
 
-    use std::path::PathBuf;
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn test_map_from_file() {
@@ -404,7 +423,6 @@ mod tests {
         assert_eq!(map.semaphore_tiles[3], [1, 17]);
         assert_eq!(map.semaphore_tiles[4], [1, 18]);
 
-
         assert_eq!(map.background_tiles.len(), 1541);
 
         // 128 16000 1 0
@@ -428,7 +446,6 @@ mod tests {
         assert_eq!(map.foreground_tiles[1].y, 16256.);
         assert_eq!(map.foreground_tiles[1].tile_bank, 1);
         assert_eq!(map.foreground_tiles[1].tile_num, 6);
-
     }
 
     #[test]
@@ -440,10 +457,9 @@ mod tests {
 
     #[test]
     fn test_all_assets_exists() {
-
         let check_assets = |level: &PlayingLevel| {
             let map_data = level.map_data();
-            
+
             for asset in &map_data.tile_sources {
                 let path: PathBuf = format!("assets/{asset}").into();
                 assert!(path.exists());
@@ -453,6 +469,5 @@ mod tests {
         for level in PlayingLevel::ALL.iter() {
             check_assets(level);
         }
-        
     }
 }

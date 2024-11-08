@@ -20,13 +20,13 @@ impl Plugin for MenuStatePlugin {
             .init_resource::<MenuData>()
             .add_systems(
                 Update,
-                (systems::handle_key_pressed, systems::render_arrow).run_if(in_state(GameGlobalState::Menu)),
+                (systems::handle_key_pressed, systems::render_arrow)
+                    .run_if(in_state(GameGlobalState::Menu)),
             );
     }
 }
 
 fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
-
     // Spawn the title
     commands.spawn((
         SpriteBundle {
@@ -42,7 +42,11 @@ fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         SpriteBundle {
             texture: asset_server.load("graphics/arrow.png"),
-            transform: Transform::from_translation(Vec3::new(-110.0, MENU_ARROW_BASE_Y_OFFEST, 1.0)),
+            transform: Transform::from_translation(Vec3::new(
+                -110.0,
+                MENU_ARROW_BASE_Y_OFFEST,
+                1.0,
+            )),
             ..default()
         },
         MenuAll,
@@ -63,26 +67,20 @@ TWO PLAYERS
 OPTIONS
 EXIT"#;
 
-        commands.spawn((Text2dBundle {
-            text: Text::from_section(options, text_style)
-                .with_justify(JustifyText::Left),
-            transform: Transform::from_translation(Vec3::new(25.0, -75.0, 0.0)),
-            ..default()
+        commands.spawn((
+            Text2dBundle {
+                text: Text::from_section(options, text_style).with_justify(JustifyText::Left),
+                transform: Transform::from_translation(Vec3::new(25.0, -75.0, 0.0)),
+                ..default()
             },
-            MenuAll,    
+            MenuAll,
         ));
     }
-    
 }
 
 // Despawn the menu screen
-fn on_exit(
-    mut commands: Commands,
-    menu_all: Query<(Entity, &MenuAll)>,
-) {
-        menu_all
-            .iter()
-            .for_each(|(entity, _)| {
-                commands.entity(entity).despawn()
-            });
+fn on_exit(mut commands: Commands, menu_all: Query<(Entity, &MenuAll)>) {
+    menu_all
+        .iter()
+        .for_each(|(entity, _)| commands.entity(entity).despawn());
 }

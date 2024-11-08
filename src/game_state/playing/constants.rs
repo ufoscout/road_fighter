@@ -1,4 +1,4 @@
-// Player: 
+// Player:
 // pub const PLAYER_MIN_SPEED: f32 = 0.;
 pub const PLAYER_MAX_SPEED: f32 = 6144.;
 pub const PLAYER_MAX_ACCEL_RATE: f32 = 48. * ORIGINAL_FPS;
@@ -10,7 +10,7 @@ pub const PLAYER_MAX_HSPEED: f32 = 768.;
 // pub const PLAYER_FUEL_RECHARGE: usize = 384;
 // pub const PLAYER_FUEL_LOSS: usize = 256;
 
-// Enemy: 
+// Enemy:
 // pub const ENEMY_SPEED: usize = 3328;
 // pub const ENEMY_HSPEED: usize = 416;
 // pub const ENEMY_CAR_INTERVAL: usize = 38;
