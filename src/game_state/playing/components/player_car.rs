@@ -1,5 +1,6 @@
 use avian2d::prelude::*;
 use bevy::{math::vec2, prelude::*};
+use map::GameLayer;
 
 use super::*;
 
@@ -44,6 +45,7 @@ impl PlayerCar {
                 vec2(-9., -15.),
                 ], None),
             RigidBody::Kinematic,
+            CollisionLayers::new(GameLayer::Player, [GameLayer::Wall]),
             // DebugRender::default().with_collider_color(Color::WHITE),
         ));
 

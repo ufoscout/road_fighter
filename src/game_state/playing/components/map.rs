@@ -1,6 +1,14 @@
 use std::{io::{BufRead, BufReader, Lines, Read}, path::Path, str::{FromStr, SplitWhitespace}, vec};
 
+use avian2d::prelude::PhysicsLayer;
+
 use crate::error::GameError;
+
+#[derive(PhysicsLayer)]
+pub enum GameLayer {
+    Player, // Layer 0
+    Wall,  // Layer 1
+}
 
 /// Represents the data of a map read from a mg2 file
 #[derive(Debug, Default)]

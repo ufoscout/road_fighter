@@ -22,3 +22,6 @@ pub struct PlayerTwoCar;
 pub struct PlayingMap {
     pub y_position: f32,
 }
+
+#[derive(Component)]
+pub struct CollidedWithWall;

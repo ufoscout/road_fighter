@@ -2,6 +2,7 @@ use assets::{colliders, AssetKey};
 use avian2d::prelude::*;
 use bevy::prelude::*;
 use components::{map::{MapData, MapTile}, *};
+use map::GameLayer;
 use player_car::PlayerCar;
 use resources::*;
 
@@ -31,7 +32,8 @@ impl Plugin for PlayingStatePlugin {
                     systems::handle_key_pressed,
                     systems::render_screen, 
                     systems::print_started_collisions,
-                systems::map_collisions,
+                systems::wall_collisions,
+                systems::car_collided_with_wall,
             ).run_if(in_state(GameGlobalState::Playing)),
             );
     }
@@ -110,6 +112,7 @@ fn span_map_tile(commands: &mut Commands, asset_server: &AssetServer, texture_at
             },
             collider.clone(),
             RigidBody::Static,
+            CollisionLayers::new(GameLayer::Wall, [GameLayer::Player]),
             // DebugRender::default().with_collider_color(Color::WHITE),
         ));
     } else {

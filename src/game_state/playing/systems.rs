@@ -58,15 +58,27 @@ pub fn handle_key_pressed(
     // }
 }
 
-pub fn map_collisions(
+pub fn wall_collisions(
+    mut commands: Commands,
     map: Query<(&PlayingMap, &CollidingEntities)>,
 ) {
     for (map, collisions) in map.iter() {
         collisions.iter().for_each(|entity| {
-            println!("Map collision with entity {:?}", entity);
+            // println!("Map collision with entity {:?}", entity);
+            commands.entity(*entity).insert(CollidedWithWall);
         });
     }
 }
+
+pub fn car_collided_with_wall(
+    time: Res<Time>,
+    mut car: Query<(&mut PlayerOneCar, &CollidedWithWall)>) {
+        car.iter_mut().for_each(|(mut car, _)| {
+            println!("Car collided with wall! BOOOOOM!!!!!!!");
+            car.speed_x = 0.;
+            car.speed_y = 0.;
+        });
+    }
 
 pub fn render_screen(
     mut car: Query<(&mut PlayerOneCar, &mut Transform)>,

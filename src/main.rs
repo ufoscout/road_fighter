@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::camera::ScalingMode, window::WindowResolution};
+use bevy::{log::LogPlugin, prelude::*, render::camera::ScalingMode, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{
     disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin, playing::PlayingStatePlugin, GameGlobalState
@@ -41,8 +41,14 @@ impl Plugin for MainWindowPlugin {
                     ..default()
                 })
                 // Setting the texture filtering mode to Nearest (and not Linear) makes the pixels to appear crisp instead of blurry
-                .set(ImagePlugin::default_nearest()),
+                // .set(ImagePlugin::default_nearest())
+                .set(LogPlugin {
+                    filter: "warn,road_fighter=debug".into(),
+                    level: bevy::log::Level::WARN,
+                    ..default()
+                }),
             );
+
     }
 }
 
@@ -67,4 +73,5 @@ fn setup(mut commands: Commands) {
         },
         ..default()
     });
+
 }
