@@ -1,8 +1,6 @@
 use avian2d::prelude::Collider;
 use bevy::{math::vec2, utils::hashbrown::HashMap};
 
-use super::map::TileData;
-
 #[derive(Debug, Default, PartialEq, Eq, Hash)]
 pub struct AssetKey<'a> {
     pub tile_source: &'a str,
