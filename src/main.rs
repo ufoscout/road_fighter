@@ -1,8 +1,8 @@
 use bevy::{log::LogPlugin, prelude::*, render::camera::ScalingMode, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{
-    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin,
-    menu::MenuStatePlugin, playing::PlayingStatePlugin, GameGlobalState,
+    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin,
+    playing::PlayingStatePlugin, GameGlobalState,
 };
 
 mod constants;
@@ -58,10 +58,7 @@ fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle {
         projection: OrthographicProjection {
             // If the window is resized, the camera will automatically adjust
-            scaling_mode: ScalingMode::AutoMin {
-                min_width: WINDOW_WIDTH,
-                min_height: WINDOW_HEIGHT,
-            },
+            scaling_mode: ScalingMode::AutoMin { min_width: WINDOW_WIDTH, min_height: WINDOW_HEIGHT },
             // clear the whole viewport with the given color
             far: 1000.,
             near: -1000.,

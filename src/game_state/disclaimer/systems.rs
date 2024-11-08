@@ -12,10 +12,8 @@ pub fn disclaimer_key_pressed(
 ) {
     if keyboard_input.get_pressed().next().is_some() {
         next_state.set(GameGlobalState::Introduction);
-        disclaimer_background
-            .iter_mut()
-            .for_each(|(_, mut visibility)| {
-                *visibility = Visibility::Hidden;
-            });
+        disclaimer_background.iter_mut().for_each(|(_, mut visibility)| {
+            *visibility = Visibility::Hidden;
+        });
     }
 }

@@ -19,10 +19,7 @@ pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (render_screen, wall_collisions).run_if(in_state(GameGlobalState::Playing)),
-        );
+        app.add_systems(Update, (render_screen, wall_collisions).run_if(in_state(GameGlobalState::Playing)));
     }
 }
 
@@ -39,40 +36,19 @@ pub fn span_map(
 
     // Spawn background tiles
     for map_tile in map_data.background_tiles.iter() {
-        let y = span_map_tile(
-            commands,
-            &asset_server,
-            texture_atlas_layouts,
-            map_tile,
-            map_data,
-            0.,
-        );
+        let y = span_map_tile(commands, &asset_server, texture_atlas_layouts, map_tile, map_data, 0.);
         min_y = min_y.min(y);
     }
 
     // Spawn middleground tiles
     for map_tile in map_data.middleground_tiles.iter() {
-        let y = span_map_tile(
-            commands,
-            &asset_server,
-            texture_atlas_layouts,
-            map_tile,
-            map_data,
-            1.,
-        );
+        let y = span_map_tile(commands, &asset_server, texture_atlas_layouts, map_tile, map_data, 1.);
         min_y = min_y.min(y);
     }
 
     // // Spawn foreground tiles
     for map_tile in map_data.foreground_tiles.iter() {
-        let y = span_map_tile(
-            commands,
-            &asset_server,
-            texture_atlas_layouts,
-            map_tile,
-            map_data,
-            2.,
-        );
+        let y = span_map_tile(commands, &asset_server, texture_atlas_layouts, map_tile, map_data, 2.);
         min_y = min_y.min(y);
     }
 
@@ -93,10 +69,7 @@ fn span_map_tile(
         .tiles
         .get(map_tile.tile_bank)
         .and_then(|t| t.get(map_tile.tile_num))
-        .expect(&format!(
-            "cannot find tile bank {}, num {}",
-            map_tile.tile_bank, map_tile.tile_num
-        ));
+        .expect(&format!("cannot find tile bank {}, num {}", map_tile.tile_bank, map_tile.tile_num));
 
     // Calculate the position of the tile
     // The original position is the top left corner of the tile, but bevy uses the center of the sprite
@@ -105,11 +78,9 @@ fn span_map_tile(
     let x = map_tile.x - half_screen_x + tile_data.width as f32 / 2.0;
     let y = half_screen_y - map_tile.y - tile_data.height as f32 / 2.0;
 
-    if let Some(collider) = colliders().get(&AssetKey {
-        tile_source: &tile_data.tile_source,
-        x: tile_data.x as u32,
-        y: tile_data.y as u32,
-    }) {
+    if let Some(collider) =
+        colliders().get(&AssetKey { tile_source: &tile_data.tile_source, x: tile_data.x as u32, y: tile_data.y as u32 })
+    {
         // Spawn the object
         commands.spawn((
             SpriteBundle {

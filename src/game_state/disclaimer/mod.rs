@@ -13,10 +13,7 @@ impl Plugin for DisclaimerStatePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameGlobalState::Disclaimer), on_enter)
             .add_systems(OnExit(GameGlobalState::Disclaimer), on_exit)
-            .add_systems(
-                Update,
-                systems::disclaimer_key_pressed.run_if(in_state(GameGlobalState::Disclaimer)),
-            );
+            .add_systems(Update, systems::disclaimer_key_pressed.run_if(in_state(GameGlobalState::Disclaimer)));
     }
 }
 
@@ -39,7 +36,5 @@ fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 // Despawn the disclaimer screen
 fn on_exit(mut commands: Commands, disclaimer_all: Query<(Entity, &DisclaimerAll)>) {
-    disclaimer_all
-        .iter()
-        .for_each(|(entity, _)| commands.entity(entity).despawn());
+    disclaimer_all.iter().for_each(|(entity, _)| commands.entity(entity).despawn());
 }

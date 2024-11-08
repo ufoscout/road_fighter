@@ -3,9 +3,7 @@ use bevy::{math::vec2, prelude::*};
 
 use crate::game_state::{
     playing::{
-        constants::{
-            PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED,
-        },
+        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED},
         CollidedWithWall, PlayerOneCar, PlayingAll,
     },
     GameGlobalState,
@@ -20,8 +18,7 @@ impl Plugin for PlayerCarPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_key_pressed, render_screen, car_collided_with_wall)
-                .run_if(in_state(GameGlobalState::Playing)),
+            (handle_key_pressed, render_screen, car_collided_with_wall).run_if(in_state(GameGlobalState::Playing)),
         );
     }
 }
@@ -41,21 +38,10 @@ pub fn spawn_player_car(
         },
         TextureAtlas {
             index: 0,
-            layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-                UVec2::new(32, 32),
-                1,
-                9,
-                None,
-                None,
-            )),
+            layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::new(32, 32), 1, 9, None, None)),
         },
         PlayingAll,
-        PlayerOneCar {
-            y_position,
-            x_position: 0.,
-            speed_y: 0.,
-            speed_x: 0.,
-        },
+        PlayerOneCar { y_position, x_position: 0., speed_y: 0., speed_x: 0. },
         Collider::polyline(
             vec![
                 vec2(-9., -15.),
@@ -85,11 +71,8 @@ pub fn handle_key_pressed(
     for mut car in car.iter_mut() {
         let y_speed_ratio = (car.speed_y / PLAYER_MAX_SPEED).abs();
 
-        let x_speed_ratio = if y_speed_ratio < 0.1 {
-            y_speed_ratio * 2.
-        } else {
-            (((y_speed_ratio - 0.1) / 0.9) * 0.8) + 0.2
-        };
+        let x_speed_ratio =
+            if y_speed_ratio < 0.1 { y_speed_ratio * 2. } else { (((y_speed_ratio - 0.1) / 0.9) * 0.8) + 0.2 };
 
         if keyboard_input.pressed(KeyCode::Space) {
             car.speed_y += (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;

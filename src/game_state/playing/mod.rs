@@ -26,10 +26,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(PlayerCarPlugin)
             .add_plugins(MapPlugin)
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
-            .add_systems(
-                Update,
-                (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)),
-            );
+            .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
     }
 }
 
@@ -42,20 +39,10 @@ fn on_enter(
     *playing_data = Default::default();
 
     // Spawn the map
-    let min_y = span_map(
-        &playing_data,
-        &mut commands,
-        &asset_server,
-        &mut texture_atlas_layouts,
-    );
+    let min_y = span_map(&playing_data, &mut commands, &asset_server, &mut texture_atlas_layouts);
 
     // Spawn the player car
-    spawn_player_car(
-        &mut commands,
-        &asset_server,
-        &mut texture_atlas_layouts,
-        min_y,
-    );
+    spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, min_y);
 }
 
 pub fn print_started_collisions(mut collision_event_reader: EventReader<CollisionStarted>) {

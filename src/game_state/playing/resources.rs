@@ -268,27 +268,15 @@ impl MapData {
 
             // we are now at line 409 of the level1.map file
             // background tiles
-            parse_objects_and_tiles(
-                &mut lines,
-                &mut map.background_tiles,
-                map.semaphore_object_index,
-            )?;
+            parse_objects_and_tiles(&mut lines, &mut map.background_tiles, map.semaphore_object_index)?;
 
             // we are now at line 1953 of the level1.map file
             // middleground
-            parse_objects_and_tiles(
-                &mut lines,
-                &mut map.middleground_tiles,
-                map.semaphore_object_index,
-            )?;
+            parse_objects_and_tiles(&mut lines, &mut map.middleground_tiles, map.semaphore_object_index)?;
 
             // we are now at line 3925 of the level1.map file
             // foreground
-            parse_objects_and_tiles(
-                &mut lines,
-                &mut map.foreground_tiles,
-                map.semaphore_object_index,
-            )?;
+            parse_objects_and_tiles(&mut lines, &mut map.foreground_tiles, map.semaphore_object_index)?;
         }
 
         Ok(map)
@@ -354,9 +342,7 @@ fn parse_objects_and_tiles(
 
 /// reads a line from the reader
 fn read_line(reader: &mut Lines<BufReader<&mut dyn Read>>) -> Result<String, GameError> {
-    let line = reader
-        .next()
-        .ok_or_else(|| GameError::ParseError("Unexpected EOF".to_owned()))??;
+    let line = reader.next().ok_or_else(|| GameError::ParseError("Unexpected EOF".to_owned()))??;
     Ok(line)
 }
 
@@ -365,12 +351,10 @@ fn parse_next<T: FromStr>(split: &mut SplitWhitespace) -> Result<T, GameError>
 where
     <T as FromStr>::Err: std::fmt::Debug,
 {
-    let sources_count = split
-        .next()
-        .ok_or_else(|| GameError::ParseError(format!("Expected no more split entries to parse")))?;
-    let parsed: T = sources_count
-        .parse()
-        .map_err(|err| GameError::ParseError(format!("Cannot parse as usize: {err:?}")))?;
+    let sources_count =
+        split.next().ok_or_else(|| GameError::ParseError(format!("Expected no more split entries to parse")))?;
+    let parsed: T =
+        sources_count.parse().map_err(|err| GameError::ParseError(format!("Cannot parse as usize: {err:?}")))?;
     Ok(parsed)
 }
 
