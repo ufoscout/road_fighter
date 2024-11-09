@@ -4,12 +4,18 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct PlayingAll;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct PlayerOneCar {
     pub y_position: f32,
     pub x_position: f32,
     pub speed_x: f32,
     pub speed_y: f32,
+}
+
+#[derive(Component)]
+pub struct ToBeRespawned {
+    pub car: PlayerOneCar,
+    pub despawn_time: f32,
 }
 
 #[derive(Component)]

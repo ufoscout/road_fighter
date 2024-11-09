@@ -9,6 +9,7 @@ pub const PLAYER_MAX_HSPEED: f32 = 768.;
 // pub const PLAYER_MAX_FUEL: usize = 2048;
 // pub const PLAYER_FUEL_RECHARGE: usize = 384;
 // pub const PLAYER_FUEL_LOSS: usize = 256;
+pub const PLAYER_RESPAWN_DELAY_SECS: f32 = 2.;
 
 // Enemy:
 // pub const ENEMY_SPEED: usize = 3328;

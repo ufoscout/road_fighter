@@ -4,8 +4,8 @@ use explosion::spawn_explosion;
 
 use crate::game_state::{
     playing::{
-        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED},
-        CollidedWithWall, PlayerOneCar, PlayingAll,
+        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED, PLAYER_RESPAWN_DELAY_SECS},
+        CollidedWithWall, PlayerOneCar, PlayingAll, ToBeRespawned,
     },
     GameGlobalState,
 };
@@ -19,7 +19,7 @@ impl Plugin for PlayerCarPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_key_pressed, render_screen, car_collided_with_wall).run_if(in_state(GameGlobalState::Playing)),
+            (handle_key_pressed, render_screen, car_collided_with_wall, respawn_player_car).run_if(in_state(GameGlobalState::Playing)),
         );
     }
 }
@@ -29,6 +29,7 @@ pub fn spawn_player_car(
     asset_server: &AssetServer,
     texture_atlas_layouts: &mut Assets<TextureAtlasLayout>,
     y_position: f32,
+    x_position: f32,
 ) {
     // Spawn the player car
     commands.spawn((
@@ -42,7 +43,7 @@ pub fn spawn_player_car(
             layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::new(32, 32), 1, 9, None, None)),
         },
         PlayingAll,
-        PlayerOneCar { y_position, x_position: 0., speed_y: 0., speed_x: 0. },
+        PlayerOneCar { y_position, x_position, speed_y: 0., speed_x: 0. },
         Collider::polyline(
             vec![
                 vec2(-9., -15.),
@@ -59,6 +60,23 @@ pub fn spawn_player_car(
         CollisionLayers::new(GameLayer::Player, [GameLayer::Wall]),
         // DebugRender::default().with_collider_color(Color::WHITE),
     ));
+}
+
+pub fn respawn_player_car(
+    time: Res<Time>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    car: Query<(Entity, &ToBeRespawned)>) {
+
+    let now = time.elapsed_seconds();
+    for (id, car) in car.iter() {
+        if car.despawn_time + PLAYER_RESPAWN_DELAY_SECS < now {
+            let car = car.car.clone();
+            commands.entity(id).despawn();
+            spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, car.y_position, 0.);
+        }
+    }
 }
 
 /// Move to menu screen whatever key is pressed
@@ -110,6 +128,7 @@ pub fn handle_key_pressed(
 }
 
 pub fn car_collided_with_wall(
+    time: Res<Time>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
@@ -118,7 +137,7 @@ pub fn car_collided_with_wall(
         car.speed_x = 0.;
         car.speed_y = 0.;
         commands.entity(id).despawn();
-
+        commands.spawn(ToBeRespawned { car: car.clone(), despawn_time: time.elapsed_seconds() });
         spawn_explosion(&mut commands, &asset_server, &mut texture_atlas_layouts, transform.translation);
     });
 }
