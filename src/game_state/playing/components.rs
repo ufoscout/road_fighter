@@ -19,3 +19,15 @@ pub struct PlayingMap {
 
 #[derive(Component)]
 pub struct CollidedWithWall;
+
+#[derive(Component)]
+pub struct Explosion;
+
+#[derive(Component)]
+pub struct ExplosionTimer(pub Timer);
+
+impl Default for ExplosionTimer {
+	fn default() -> Self {
+		Self(Timer::from_seconds(0.1, TimerMode::Repeating))
+	}
+}

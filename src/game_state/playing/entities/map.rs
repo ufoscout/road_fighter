@@ -135,7 +135,9 @@ pub fn wall_collisions(mut commands: Commands, map: Query<(&PlayingMap, &Collidi
     for (_map, collisions) in map.iter() {
         collisions.iter().for_each(|entity| {
             // println!("Map collision with entity {:?}", entity);
-            commands.entity(*entity).insert(CollidedWithWall);
+            commands.get_entity(*entity).map(|mut e| {
+                e.try_insert(CollidedWithWall);
+            });
         });
     }
 }
@@ -144,9 +146,10 @@ pub fn render_screen(
     car: Query<&PlayerOneCar>,
     mut map_data: Query<(&PlayingMap, &mut Transform), Without<PlayerOneCar>>,
 ) {
-    let car = car.single();
-
-    for (map, mut transform) in map_data.iter_mut() {
-        transform.translation.y = map.y_position - car.y_position;
+    if let Ok(car) = car.get_single() {
+        for (map, mut transform) in map_data.iter_mut() {
+            transform.translation.y = map.y_position - car.y_position;
+        }
     }
+
 }

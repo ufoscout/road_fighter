@@ -1,5 +1,6 @@
 use avian2d::prelude::*;
 use bevy::{math::vec2, prelude::*};
+use explosion::spawn_explosion;
 
 use crate::game_state::{
     playing::{
@@ -108,15 +109,22 @@ pub fn handle_key_pressed(
     }
 }
 
-pub fn car_collided_with_wall(mut car: Query<(&mut PlayerOneCar, &CollidedWithWall)>) {
-    car.iter_mut().for_each(|(mut car, _)| {
-        println!("Car collided with wall! BOOOOOM!!!!!!!");
+pub fn car_collided_with_wall(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    mut car: Query<(Entity, &mut PlayerOneCar, &Transform, &CollidedWithWall)>) {
+    car.iter_mut().for_each(|(id, mut car, transform, _)| {
         car.speed_x = 0.;
         car.speed_y = 0.;
+        commands.entity(id).despawn();
+
+        spawn_explosion(&mut commands, &asset_server, &mut texture_atlas_layouts, transform.translation);
     });
 }
 
 pub fn render_screen(mut car: Query<(&mut PlayerOneCar, &mut Transform)>) {
-    let mut car = car.single_mut();
-    car.1.translation.x = car.0.x_position;
+    car.iter_mut().for_each(|(car, mut transform)| {
+        transform.translation.x = car.x_position;
+    });
 }

@@ -2,6 +2,7 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 use components::*;
 use entities::*;
+use explosion::PlayerCarExplosionPlugin;
 use map::{span_map, MapPlugin};
 use player_car::{spawn_player_car, PlayerCarPlugin};
 use resources::*;
@@ -24,6 +25,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(PhysicsPlugins::default())
             // .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(PlayerCarPlugin)
+            .add_plugins(PlayerCarExplosionPlugin)
             .add_plugins(MapPlugin)
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
