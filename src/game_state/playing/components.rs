@@ -23,8 +23,21 @@ pub struct PlayingMap {
     pub y_position: f32,
 }
 
+pub enum CarCollidedSide {
+    Left,
+    Right,
+}
+
 #[derive(Component)]
-pub struct CollidedWithWall;
+pub struct CollidedWithWall {
+    pub side: CarCollidedSide,
+}
+
+#[derive(Component)]
+pub struct RightWall;
+
+#[derive(Component)]
+pub struct LeftWall;
 
 #[derive(Component)]
 pub struct Explosion;

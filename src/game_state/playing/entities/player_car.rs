@@ -4,8 +4,7 @@ use explosion::spawn_explosion;
 
 use crate::game_state::{
     playing::{
-        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED, PLAYER_RESPAWN_DELAY_SECS},
-        CollidedWithWall, PlayerOneCar, PlayingAll, ToBeRespawned,
+        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED, PLAYER_RESPAWN_DELAY_SECS}, CarCollidedSide, CollidedWithWall, PlayerOneCar, PlayingAll, ToBeRespawned
     },
     GameGlobalState,
 };
@@ -74,7 +73,7 @@ pub fn respawn_player_car(
         if car.despawn_time + PLAYER_RESPAWN_DELAY_SECS < now {
             let car = car.car.clone();
             commands.entity(id).despawn();
-            spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, car.y_position, 0.);
+            spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, car.y_position, car.x_position);
         }
     }
 }
@@ -133,9 +132,16 @@ pub fn car_collided_with_wall(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut car: Query<(Entity, &mut PlayerOneCar, &Transform, &CollidedWithWall)>) {
-    car.iter_mut().for_each(|(id, mut car, transform, _)| {
+    car.iter_mut().for_each(|(id, mut car, transform, collision)| {
+
         car.speed_x = 0.;
         car.speed_y = 0.;
+
+        match collision.side {
+            CarCollidedSide::Left => car.x_position += 20.,
+            CarCollidedSide::Right => car.x_position -= 20.,
+        }
+
         commands.entity(id).despawn();
         commands.spawn(ToBeRespawned { car: car.clone(), despawn_time: time.elapsed_seconds() });
         spawn_explosion(&mut commands, &asset_server, &mut texture_atlas_layouts, transform.translation);

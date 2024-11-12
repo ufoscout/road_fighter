@@ -5,21 +5,18 @@ use crate::{
     constants::WINDOW_HEIGHT,
     game_state::{
         playing::{
-            assets::{colliders, AssetKey},
-            CollidedWithWall, MapData, MapTile, PlayerOneCar, PlayingAll, PlayingData, PlayingMap,
+            assets::{add_collider, AssetKey}, CarCollidedSide, CollidedWithWall, LeftWall, MapData, MapTile, PlayerOneCar, PlayingAll, PlayingData, PlayingMap, RightWall
         },
         GameGlobalState,
     },
 };
-
-use super::GameLayer;
 
 /// The plugin that handles the map
 pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (render_screen, wall_collisions).run_if(in_state(GameGlobalState::Playing)));
+        app.add_systems(Update, (render_screen, left_wall_collisions, right_wall_collisions).run_if(in_state(GameGlobalState::Playing)));
     }
 }
 
@@ -78,65 +75,48 @@ fn span_map_tile(
     let x = map_tile.x - half_screen_x + tile_data.width as f32 / 2.0;
     let y = half_screen_y - map_tile.y - tile_data.height as f32 / 2.0;
 
-    if let Some(collider) =
-        colliders().get(&AssetKey { tile_source: &tile_data.tile_source, x: tile_data.x as u32, y: tile_data.y as u32 })
-    {
-        // Spawn the object
-        commands.spawn((
-            SpriteBundle {
-                texture: asset_server.load(&tile_data.tile_source),
-                transform: Transform::from_translation(Vec3::new(x, y, z)),
-                ..default()
-            },
-            TextureAtlas {
-                index: 0,
-                layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-                    UVec2::new(tile_data.width, tile_data.height),
-                    1,
-                    1,
-                    None,
-                    Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
-                )),
-            },
-            PlayingAll,
-            PlayingMap { y_position: y },
-            collider.clone(),
-            RigidBody::Static,
-            CollisionLayers::new(GameLayer::Wall, [GameLayer::Player]),
-            // DebugRender::default().with_collider_color(Color::WHITE),
-        ));
-    } else {
-        // Spawn the object
-        commands.spawn((
-            SpriteBundle {
-                texture: asset_server.load(&tile_data.tile_source),
-                transform: Transform::from_translation(Vec3::new(x, y, z)),
-                ..default()
-            },
-            TextureAtlas {
-                index: 0,
-                layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-                    UVec2::new(tile_data.width, tile_data.height),
-                    1,
-                    1,
-                    None,
-                    Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
-                )),
-            },
-            PlayingAll,
-            PlayingMap { y_position: y },
-        ));
-    }
+    let mut entity = commands.spawn((
+        SpriteBundle {
+            texture: asset_server.load(&tile_data.tile_source),
+            transform: Transform::from_translation(Vec3::new(x, y, z)),
+            ..default()
+        },
+        TextureAtlas {
+            index: 0,
+            layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+                UVec2::new(tile_data.width, tile_data.height),
+                1,
+                1,
+                None,
+                Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
+            )),
+        },
+        PlayingAll,
+        PlayingMap { y_position: y },
+    ));
+
+    add_collider(&mut entity, AssetKey { tile_source: &tile_data.tile_source, x: tile_data.x as u32, y: tile_data.y as u32 });
 
     y
 }
 
-pub fn wall_collisions(mut commands: Commands, map: Query<(&PlayingMap, &CollidingEntities)>) {
+pub fn left_wall_collisions(mut commands: Commands, map: Query<(&LeftWall, &CollidingEntities)>) {
     for (_map, collisions) in map.iter() {
         collisions.iter().for_each(|entity| {
             // println!("Map collision with entity {:?}", entity);
             commands.get_entity(*entity).map(|mut e| {
-                e.try_insert(CollidedWithWall);
+                e.try_insert(CollidedWithWall { side: CarCollidedSide::Left });
+            });
+        });
+    }
+}
+
+pub fn right_wall_collisions(mut commands: Commands, map: Query<(&RightWall, &CollidingEntities)>) {
+    for (_map, collisions) in map.iter() {
+        collisions.iter().for_each(|entity| {
+            // println!("Map collision with entity {:?}", entity);
+            commands.get_entity(*entity).map(|mut e| {
+                e.try_insert(CollidedWithWall { side: CarCollidedSide::Right });
             });
         });
     }

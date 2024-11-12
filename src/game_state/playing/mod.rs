@@ -23,7 +23,7 @@ impl Plugin for PlayingStatePlugin {
         app.init_resource::<PlayingData>()
             .insert_resource(Gravity::ZERO)
             .add_plugins(PhysicsPlugins::default())
-            // .add_plugins(PhysicsDebugPlugin::default())
+            .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(PlayerCarPlugin)
             .add_plugins(PlayerCarExplosionPlugin)
             .add_plugins(MapPlugin)
