@@ -27,17 +27,17 @@ pub fn spawn_explosion(
 		// spawn the explosion sprite
 		commands
 			.spawn((
-				SpriteBundle {
-					texture: asset_server.load("graphics/explosion.png"),
-					transform: Transform {
-						translation,
-						..Default::default()
-					},
+				Sprite {
+					image: asset_server.load("graphics/explosion.png"),
+					texture_atlas: Some(TextureAtlas {
+						layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::new(64, 64), 1, EXPLOSION_LEN as u32, None, None)),
+						index: 0,
+					}),
 					..Default::default()
 				},
-				TextureAtlas {
-					layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::new(64, 64), 1, EXPLOSION_LEN as u32, None, None)),
-					index: 0,
+				Transform {
+					translation,
+					..Default::default()
 				},
 			))
 			.insert(Explosion)
@@ -48,14 +48,16 @@ pub fn spawn_explosion(
 fn explosion_animation_system(
 	mut commands: Commands,
 	time: Res<Time>,
-	mut query: Query<(Entity, &mut ExplosionTimer, &mut TextureAtlas), With<Explosion>>,
+	mut query: Query<(Entity, &mut ExplosionTimer, &mut Sprite), With<Explosion>>,
 ) {
 	for (entity, mut timer, mut sprite) in &mut query {
 		timer.0.tick(time.delta());
-		if timer.0.finished() {
-			sprite.index += 1; // move to next sprite cell
-			if sprite.index >= EXPLOSION_LEN {
-				commands.entity(entity).despawn();
+		if timer.0.just_finished() {
+			if let Some(atlas) = &mut sprite.texture_atlas {
+				atlas.index += 1;
+				if atlas.index >= EXPLOSION_LEN {
+					commands.entity(entity).despawn();
+				}
 			}
 		}
 	}

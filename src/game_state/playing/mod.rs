@@ -47,8 +47,8 @@ fn on_enter(
     spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, min_y, 0.);
 }
 
-pub fn print_started_collisions(mut collision_event_reader: EventReader<CollisionStarted>) {
-    for CollisionStarted(entity1, entity2) in collision_event_reader.read() {
-        println!("Entities {:?} and {:?} started colliding", entity1, entity2,);
+pub fn print_started_collisions(mut collision_event_reader: MessageReader<CollisionStart>) {
+    for _ in collision_event_reader.read() {
+        println!("Collision started");
     }
 }

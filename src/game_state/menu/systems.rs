@@ -13,7 +13,7 @@ pub fn handle_key_pressed(
     mut next_state: ResMut<NextState<GameGlobalState>>,
     mut menu_data: ResMut<MenuData>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut exit: EventWriter<AppExit>,
+    mut exit: MessageWriter<AppExit>,
 ) {
     if keyboard_input.just_pressed(KeyCode::ArrowDown) {
         menu_data.selected_entry = menu_data.selected_entry.next()
@@ -24,7 +24,7 @@ pub fn handle_key_pressed(
 
         if menu_data.selected_entry == MenuEntry::Exit {
             // Exit the game if the selected entry is Exit
-            exit.send(AppExit::Success);
+            exit.write(AppExit::Success);
         } else if menu_data.selected_entry == MenuEntry::OnePlayer {
             // Set the next state to Playing if the selected entry is OnePlayer
             next_state.set(GameGlobalState::Playing);

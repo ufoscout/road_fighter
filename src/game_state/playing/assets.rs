@@ -18,6 +18,7 @@ pub fn add_collider(commands: &mut EntityCommands, asset_key: AssetKey) {
             commands
                 .insert(Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 63.)], None))
                 .insert(LeftWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
@@ -25,18 +26,21 @@ pub fn add_collider(commands: &mut EntityCommands, asset_key: AssetKey) {
             commands
             .insert(Collider::polyline(vec![vec2(-5., -64.), vec2(-5., 63.)], None))
             .insert(LeftWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
         AssetKey { tile_source: "graphics/road.png", x: 192, y: 128 } => {
             commands.insert(Collider::polyline(vec![vec2(11., -64.), vec2(-5., 63.)], None))
             .insert(LeftWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
         AssetKey { tile_source: "graphics/road.png", x: 192, y: 256 } => {
             commands.insert(Collider::polyline(vec![vec2(-5., -64.), vec2(11., 63.)], None))
             .insert(LeftWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
@@ -45,24 +49,28 @@ pub fn add_collider(commands: &mut EntityCommands, asset_key: AssetKey) {
         AssetKey { tile_source: "graphics/road.png", x: 96, y: 128 } => {
             commands.insert(Collider::polyline(vec![vec2(4., -64.), vec2(4., 63.)], None))
             .insert(RightWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
         AssetKey { tile_source: "graphics/road.png", x: 96, y: 256 } => {
             commands.insert(Collider::polyline(vec![vec2(4., -64.), vec2(4., 63.)], None))
             .insert(RightWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
         AssetKey { tile_source: "graphics/road.png", x: 288, y: 128 } => {
             commands.insert(Collider::polyline(vec![vec2(4., -64.), vec2(-12., 63.)], None))
             .insert(RightWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
         AssetKey { tile_source: "graphics/road.png", x: 288, y: 256 } => {
             commands.insert(Collider::polyline(vec![vec2(-12., -64.), vec2(4., 63.)], None))
             .insert(RightWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
@@ -71,12 +79,14 @@ pub fn add_collider(commands: &mut EntityCommands, asset_key: AssetKey) {
         AssetKey { tile_source: "graphics/road.png", x: 400, y: 128 } => {
             commands.insert(Collider::polyline(vec![vec2(-11., -64.), vec2(-11., 63.)], None))
             .insert(LeftWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },
         AssetKey { tile_source: "graphics/road.png", x: 400, y: 256 } => {
             commands.insert(Collider::polyline(vec![vec2(-1., -64.), vec2(-1., 63.)], None))
             .insert(RightWall)
+                .insert(CollidingEntities::default())
                 .insert(CollisionLayers::new([GameLayer::Wall], [GameLayer::Player]))
                 .insert(RigidBody::Static);
         },

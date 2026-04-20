@@ -28,22 +28,22 @@ impl Plugin for MenuStatePlugin {
 fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Spawn the title
     commands.spawn((
-        SpriteBundle {
-            texture: asset_server.load("graphics/title.png"),
-            transform: Transform::from_translation(Vec3::new(0.0, 80.0, 0.0)),
+        Sprite {
+            image: asset_server.load("graphics/title.png"),
             ..default()
         },
+        Transform::from_translation(Vec3::new(0.0, 80.0, 0.0)),
         MenuAll,
         MenuTitle,
     ));
 
     // Spawn the arrow
     commands.spawn((
-        SpriteBundle {
-            texture: asset_server.load("graphics/arrow.png"),
-            transform: Transform::from_translation(Vec3::new(-110.0, MENU_ARROW_BASE_Y_OFFEST, 1.0)),
+        Sprite {
+            image: asset_server.load("graphics/arrow.png"),
             ..default()
         },
+        Transform::from_translation(Vec3::new(-110.0, MENU_ARROW_BASE_Y_OFFEST, 1.0)),
         MenuAll,
         MenuArrow,
     ));
@@ -51,7 +51,6 @@ fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Add menu entries
     {
         let font = asset_server.load("fonts/tanglewo.ttf");
-        let text_style = TextStyle { font, font_size: 30.0, ..default() };
 
         let options = r#"ONE PLAYER
 TWO PLAYERS
@@ -59,11 +58,10 @@ OPTIONS
 EXIT"#;
 
         commands.spawn((
-            Text2dBundle {
-                text: Text::from_section(options, text_style).with_justify(JustifyText::Left),
-                transform: Transform::from_translation(Vec3::new(25.0, -75.0, 0.0)),
-                ..default()
-            },
+            Text2d::new(options),
+            TextFont { font, font_size: 30.0, ..default() },
+            TextLayout::new_with_justify(Justify::Left),
+            Transform::from_translation(Vec3::new(25.0, -75.0, 0.0)),
             MenuAll,
         ));
     }

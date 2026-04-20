@@ -1,4 +1,4 @@
-use bevy::{log::LogPlugin, prelude::*, render::camera::ScalingMode, window::WindowResolution};
+use bevy::{camera::ScalingMode, log::LogPlugin, prelude::*, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{
     disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin,
@@ -35,7 +35,7 @@ impl Plugin for MainWindowPlugin {
                     .set(WindowPlugin {
                         primary_window: Some(Window {
                             title: "Road Fighter".to_string(),
-                            resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT)
+                            resolution: WindowResolution::new(WINDOW_WIDTH as u32, WINDOW_HEIGHT as u32)
                                 .with_scale_factor_override(2.),
                             resizable: true,
                             ..default()
@@ -54,21 +54,17 @@ impl Plugin for MainWindowPlugin {
 }
 
 fn setup(mut commands: Commands) {
-    // Spawn a 2D camera
-    commands.spawn(Camera2dBundle {
-        projection: OrthographicProjection {
-            // If the window is resized, the camera will automatically adjust
+    commands.spawn((
+        Camera2d,
+        Projection::Orthographic(OrthographicProjection {
             scaling_mode: ScalingMode::AutoMin { min_width: WINDOW_WIDTH, min_height: WINDOW_HEIGHT },
-            // clear the whole viewport with the given color
             far: 1000.,
             near: -1000.,
-            ..default()
-        },
-        camera: Camera {
-            // clear the whole viewport with the given color
+            ..OrthographicProjection::default_2d()
+        }),
+        Camera {
             clear_color: ClearColorConfig::Custom(Color::BLACK),
             ..Default::default()
         },
-        ..default()
-    });
+    ));
 }

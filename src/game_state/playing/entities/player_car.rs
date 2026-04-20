@@ -32,15 +32,15 @@ pub fn spawn_player_car(
 ) {
     // Spawn the player car
     commands.spawn((
-        SpriteBundle {
-            texture: asset_server.load("graphics/car1.png"),
-            transform: Transform::from_translation(Vec3::new(0.0, -126., 255.0)),
+        Sprite {
+            image: asset_server.load("graphics/car1.png"),
+            texture_atlas: Some(TextureAtlas {
+                index: 0,
+                layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::new(32, 32), 1, 9, None, None)),
+            }),
             ..default()
         },
-        TextureAtlas {
-            index: 0,
-            layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::new(32, 32), 1, 9, None, None)),
-        },
+        Transform::from_translation(Vec3::new(0.0, -126., 255.0)),
         PlayingAll,
         PlayerOneCar { y_position, x_position, speed_y: 0., speed_x: 0. },
         Collider::polyline(
@@ -68,7 +68,7 @@ pub fn respawn_player_car(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     car: Query<(Entity, &ToBeRespawned)>) {
 
-    let now = time.elapsed_seconds();
+    let now = time.elapsed_secs();
     for (id, car) in car.iter() {
         if car.despawn_time + PLAYER_RESPAWN_DELAY_SECS < now {
             let car = car.car.clone();
@@ -84,7 +84,7 @@ pub fn handle_key_pressed(
     mut car: Query<&mut PlayerOneCar>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
-    let delta = time.delta_seconds();
+    let delta = time.delta_secs();
 
     for mut car in car.iter_mut() {
         let y_speed_ratio = (car.speed_y / PLAYER_MAX_SPEED).abs();
@@ -143,7 +143,7 @@ pub fn car_collided_with_wall(
         }
 
         commands.entity(id).despawn();
-        commands.spawn(ToBeRespawned { car: car.clone(), despawn_time: time.elapsed_seconds() });
+        commands.spawn(ToBeRespawned { car: car.clone(), despawn_time: time.elapsed_secs() });
         spawn_explosion(&mut commands, &asset_server, &mut texture_atlas_layouts, transform.translation);
     });
 }

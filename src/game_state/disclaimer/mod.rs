@@ -20,13 +20,8 @@ impl Plugin for DisclaimerStatePlugin {
 fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Spawn the background
     commands.spawn((
-        SpriteBundle {
-            texture: asset_server.load("graphics/disclaimer.png"),
-            sprite: Sprite {
-                // custom_size: Some(Vec2::new(WINDOW_WIDTH + BACKGROUNG_IMAGE_WIDTH * 2., WINDOW_HEIGHT)), // Adding a custom size
-                ..default() // Everything else is set to default
-            },
-            visibility: Visibility::Visible,
+        Sprite {
+            image: asset_server.load("graphics/disclaimer.png"),
             ..default()
         },
         DisclaimerAll,

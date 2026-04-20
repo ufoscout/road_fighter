@@ -76,21 +76,21 @@ fn span_map_tile(
     let y = half_screen_y - map_tile.y - tile_data.height as f32 / 2.0;
 
     let mut entity = commands.spawn((
-        SpriteBundle {
-            texture: asset_server.load(&tile_data.tile_source),
-            transform: Transform::from_translation(Vec3::new(x, y, z)),
+        Sprite {
+            image: asset_server.load(&tile_data.tile_source),
+            texture_atlas: Some(TextureAtlas {
+                index: 0,
+                layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+                    UVec2::new(tile_data.width, tile_data.height),
+                    1,
+                    1,
+                    None,
+                    Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
+                )),
+            }),
             ..default()
         },
-        TextureAtlas {
-            index: 0,
-            layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-                UVec2::new(tile_data.width, tile_data.height),
-                1,
-                1,
-                None,
-                Some(UVec2::new(tile_data.x as u32, tile_data.y as u32)),
-            )),
-        },
+        Transform::from_translation(Vec3::new(x, y, z)),
         PlayingAll,
         PlayingMap { y_position: y },
     ));
@@ -126,7 +126,7 @@ pub fn render_screen(
     car: Query<&PlayerOneCar>,
     mut map_data: Query<(&PlayingMap, &mut Transform), Without<PlayerOneCar>>,
 ) {
-    if let Ok(car) = car.get_single() {
+    if let Ok(car) = car.single() {
         for (map, mut transform) in map_data.iter_mut() {
             transform.translation.y = map.y_position - car.y_position;
         }

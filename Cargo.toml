@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-avian2d = "0.1"
-bevy = { version = "0.14" }
+avian2d = "0.6"
+bevy = { version = "0.18" }
 rand = "0.10"
 thiserror = "2.0"
  

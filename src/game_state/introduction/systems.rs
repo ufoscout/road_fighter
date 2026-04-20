@@ -35,14 +35,14 @@ pub fn render_screen(
     match introduction_state.step {
         IntroductionStep::StepOne => {
             commands.spawn((
-                SpriteBundle { texture: asset_server.load("graphics/retroremakes.png"), ..default() },
+                Sprite { image: asset_server.load("graphics/retroremakes.png"), ..default() },
                 IntroductionAll,
                 IntroductionBackground,
             ));
         }
         IntroductionStep::StepTwo => {
             commands.spawn((
-                SpriteBundle { texture: asset_server.load("graphics/konami2.png"), ..default() },
+                Sprite { image: asset_server.load("graphics/konami2.png"), ..default() },
                 IntroductionAll,
                 IntroductionBackground,
             ));

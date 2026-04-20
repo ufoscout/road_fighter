@@ -4,8 +4,9 @@ pub mod explosion;
 pub mod map;
 pub mod player_car;
 
-#[derive(PhysicsLayer, Clone)]
+#[derive(PhysicsLayer, Default, Clone)]
 pub enum GameLayer {
+    #[default]
     Player, // Layer 0
     Wall,   // Layer 1
 }
