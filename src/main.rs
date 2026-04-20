@@ -66,5 +66,6 @@ fn setup(mut commands: Commands) {
             clear_color: ClearColorConfig::Custom(Color::BLACK),
             ..Default::default()
         },
+        Msaa::Off,
     ));
 }

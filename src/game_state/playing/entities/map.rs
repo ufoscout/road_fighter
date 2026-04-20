@@ -127,8 +127,9 @@ pub fn render_screen(
     mut map_data: Query<(&PlayingMap, &mut Transform), Without<PlayerOneCar>>,
 ) {
     if let Ok(car) = car.single() {
+        let scroll_y = car.y_position.round();
         for (map, mut transform) in map_data.iter_mut() {
-            transform.translation.y = map.y_position - car.y_position;
+            transform.translation.y = map.y_position - scroll_y;
         }
     }
 
