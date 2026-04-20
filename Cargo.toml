@@ -5,11 +5,7 @@ edition = "2021"
 
 [dependencies]
 avian2d = "0.6"
-bevy = { version = "0.18", default-features = false, features = [
-    "default_app",       # asset loading, logging, state, window 
-    "default_platform",  # winit, x11/wayland, default font
-    "2d_bevy_render",
-] }
+bevy = { version = "0.18", default-features = false, features = ["2d"] }
 rand = "0.10"
 thiserror = "2.0"
  
