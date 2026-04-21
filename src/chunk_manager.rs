@@ -1,6 +1,9 @@
 //! A generic GPU-chunked map renderer for large vertically-scrolling tile maps.
 //! The manager keeps 4 chunk textures alive at a time (1 behind the camera,
 //! 3 ahead). Each chunk is composited on a background thread.
+//! 
+//! We cannot use existing solutions like [`bevy_ecs_tilemap`](https://crates.io/crates/bevy_ecs_tilemap)
+//! because it requires all sprites to be of the same size which is not the case here.
 
 use std::{
     collections::{HashMap, HashSet},

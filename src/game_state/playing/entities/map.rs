@@ -42,10 +42,9 @@ pub fn build_map_config(playing_data: &PlayingData) -> (ChunkManagerConfig, f32)
     collect_blits(&mut tiles, &map_data.foreground_tiles, map_data, 2);
 
     // map_origin: world-space position of map pixel (0, 0).
-    // Matches the per-tile formula in span_map_tile:
-    //   x = tile.map_x - WINDOW_HEIGHT/2 + tile.width/2
+    //   x = tile.map_x - WINDOW_WIDTH/2  + tile.width/2
     //   y = WINDOW_HEIGHT/2 - tile.map_y - tile.height/2
-    let map_origin = Vec2::new(-WINDOW_HEIGHT / 2.0, WINDOW_HEIGHT / 2.0);
+    let map_origin = Vec2::new(-map_data.width / 2.0, WINDOW_HEIGHT / 2.0);
 
     let config = ChunkManagerConfig {
         map_width: map_data.width as u32,
@@ -86,7 +85,7 @@ pub fn spawn_collision_tiles(
             continue;
         }
 
-        let x = map_tile.x - WINDOW_HEIGHT / 2.0 + tile_data.width as f32 / 2.0;
+        let x = map_tile.x - map_data.width / 2.0 + tile_data.width as f32 / 2.0;
         let y = WINDOW_HEIGHT / 2.0 - map_tile.y - tile_data.height as f32 / 2.0;
 
         let mut entity = commands.spawn((
