@@ -4449,6 +4449,7 @@ version = "0.1.0"
 dependencies = [
  "avian2d",
  "bevy",
+ "image",
  "rand 0.10.1",
  "thiserror 2.0.18",
 ]

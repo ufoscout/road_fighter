@@ -5,6 +5,7 @@ use game_state::{
     playing::PlayingStatePlugin, GameGlobalState,
 };
 
+mod chunk_manager;
 mod constants;
 mod error;
 mod game_state;

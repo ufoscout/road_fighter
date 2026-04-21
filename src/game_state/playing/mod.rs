@@ -3,9 +3,11 @@ use bevy::prelude::*;
 use components::*;
 use entities::*;
 use explosion::PlayerCarExplosionPlugin;
-use map::{span_map, MapPlugin};
+use map::{build_map_config, spawn_collision_tiles, MapPlugin};
 use player_car::{spawn_player_car, PlayerCarPlugin};
 use resources::*;
+
+use crate::chunk_manager::{setup_chunk_manager, ChunkManagerPlugin};
 
 use super::GameGlobalState;
 
@@ -15,7 +17,6 @@ mod constants;
 mod entities;
 mod resources;
 
-/// The plugin that handles the Playing state
 pub struct PlayingStatePlugin;
 
 impl Plugin for PlayingStatePlugin {
@@ -27,6 +28,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(PlayerCarPlugin)
             .add_plugins(PlayerCarExplosionPlugin)
             .add_plugins(MapPlugin)
+            .add_plugins(ChunkManagerPlugin)
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
     }
@@ -40,11 +42,10 @@ fn on_enter(
 ) {
     *playing_data = Default::default();
 
-    // Spawn the map
-    let min_y = span_map(&playing_data, &mut commands, &asset_server, &mut texture_atlas_layouts);
-
-    // Spawn the player car
-    spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, min_y, 0.);
+    let (config, initial_scroll) = build_map_config(&playing_data);
+    setup_chunk_manager(config, initial_scroll, &mut commands);
+    spawn_collision_tiles(&playing_data, &mut commands);
+    spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, initial_scroll, 0.);
 }
 
 pub fn print_started_collisions(mut collision_event_reader: MessageReader<CollisionStart>) {
