@@ -9,10 +9,19 @@ use bevy::prelude::*;
 
 use crate::error::GameError;
 
+/// The state of the race
+#[derive(Debug, PartialEq, Default)]
+pub enum RaceState {
+    #[default]
+    WaitingToStart,
+    Started,
+}
+
 // The global resource that holds the game state
 #[derive(Resource, Default)]
 pub struct PlayingData {
     pub level: PlayingLevel,
+    pub race_state: RaceState,
 }
 
 // The different game levels

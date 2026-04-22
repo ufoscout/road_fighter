@@ -6,7 +6,7 @@ use explosion::PlayerCarExplosionPlugin;
 use map::{build_map_config, spawn_collision_tiles, MapPlugin};
 use player_car::{spawn_player_car, PlayerCarPlugin};
 use resources::*;
-use semaphore::{spawn_semaphore, SemaphorePlugin};
+use semaphore::SemaphorePlugin;
 
 use crate::chunk_manager::{setup_chunk_manager, ChunkManagerPlugin};
 
@@ -17,6 +17,13 @@ mod components;
 mod constants;
 mod entities;
 mod resources;
+
+/// System set used to order OnEnter(Playing) systems
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub enum PlayingStartup {
+    InitData,
+    SpawnEntities,
+}
 
 pub struct PlayingStatePlugin;
 
@@ -31,7 +38,11 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(MapPlugin)
             .add_plugins(ChunkManagerPlugin)
             .add_plugins(SemaphorePlugin)
-            .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
+            .configure_sets(
+                OnEnter(GameGlobalState::Playing),
+                PlayingStartup::SpawnEntities.after(PlayingStartup::InitData),
+            )
+            .add_systems(OnEnter(GameGlobalState::Playing), on_enter.in_set(PlayingStartup::InitData))
             .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
     }
 }
@@ -41,7 +52,6 @@ fn on_enter(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    mut semaphore_countdown: ResMut<semaphore::SemaphoreCountdown>,
 ) {
     *playing_data = Default::default();
 
@@ -49,7 +59,6 @@ fn on_enter(
     setup_chunk_manager(config, initial_scroll, &mut commands);
     spawn_collision_tiles(&playing_data, &mut commands);
     spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, initial_scroll, 0.);
-    spawn_semaphore(&playing_data, &mut commands, &asset_server, &mut semaphore_countdown);
 }
 
 pub fn print_started_collisions(mut collision_event_reader: MessageReader<CollisionStart>) {

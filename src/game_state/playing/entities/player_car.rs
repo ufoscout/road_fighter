@@ -8,7 +8,7 @@ use crate::game_state::{
     },
     GameGlobalState,
 };
-use super::semaphore::SemaphoreCountdown;
+use crate::game_state::playing::resources::{PlayingData, RaceState};
 
 use super::*;
 
@@ -83,9 +83,9 @@ pub fn handle_key_pressed(
     time: Res<Time>,
     mut car: Query<&mut PlayerOneCar>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    countdown: Res<SemaphoreCountdown>,
+    playing_data: Res<PlayingData>,
 ) {
-    if countdown.is_active() {
+    if playing_data.race_state != RaceState::Started {
         return;
     }
 

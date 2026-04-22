@@ -3,22 +3,22 @@ use bevy::prelude::*;
 use crate::{
     constants::WINDOW_HEIGHT,
     game_state::{
-        playing::{PlayingAll, PlayingData, PlayingMap},
+        playing::{PlayingAll, PlayingData, PlayingMap, PlayingStartup},
         GameGlobalState,
     },
 };
 
+use super::super::resources::RaceState;
+
 // Duration of each semaphore phase (blank → red1 → blank → red2 → blank → red3 → blank → green)
 const SEMAPHORE_STEP_SECS: f32 = 1.;
-pub const SEMAPHORE_TOTAL_SECS: f32 = SEMAPHORE_STEP_SECS * 7.0;
+const SEMAPHORE_TOTAL_SECS: f32 = SEMAPHORE_STEP_SECS * 7.0;
 
-/// Counts down from SEMAPHORE_TOTAL_SECS to 0.
-/// While positive, the player car cannot accelerate.
 #[derive(Resource, Default)]
-pub struct SemaphoreCountdown(pub f32);
+struct SemaphoreCountdown(f32);
 
 impl SemaphoreCountdown {
-    pub fn is_active(&self) -> bool {
+    fn is_active(&self) -> bool {
         self.0 > 0.0
     }
 }
@@ -33,18 +33,23 @@ pub struct SemaphorePlugin;
 
 impl Plugin for SemaphorePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<SemaphoreCountdown>().add_systems(
-            Update,
-            semaphore_animation_system.run_if(in_state(GameGlobalState::Playing)),
-        );
+        app.init_resource::<SemaphoreCountdown>()
+            .add_systems(
+                OnEnter(GameGlobalState::Playing),
+                spawn_semaphore.in_set(PlayingStartup::SpawnEntities),
+            )
+            .add_systems(
+                Update,
+                semaphore_animation_system.run_if(in_state(GameGlobalState::Playing)),
+            );
     }
 }
 
-pub fn spawn_semaphore(
-    playing_data: &PlayingData,
-    commands: &mut Commands,
-    asset_server: &AssetServer,
-    semaphore_countdown: &mut SemaphoreCountdown,
+fn spawn_semaphore(
+    playing_data: Res<PlayingData>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut semaphore_countdown: ResMut<SemaphoreCountdown>,
 ) {
     let map_data = playing_data.level.map_data();
 
@@ -84,6 +89,7 @@ fn semaphore_animation_system(
     time: Res<Time>,
     mut countdown: ResMut<SemaphoreCountdown>,
     mut query: Query<(&mut Semaphore, &mut Sprite)>,
+    mut playing_data: ResMut<PlayingData>,
 ) {
     if !countdown.is_active() {
         return;
@@ -91,6 +97,10 @@ fn semaphore_animation_system(
 
     let delta = time.delta_secs();
     countdown.0 = (countdown.0 - delta).max(0.0);
+
+    if !countdown.is_active() {
+        playing_data.race_state = RaceState::Started;
+    }
 
     for (mut sem, mut sprite) in query.iter_mut() {
         sem.elapsed += delta;
