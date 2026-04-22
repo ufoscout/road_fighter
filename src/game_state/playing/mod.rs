@@ -18,13 +18,6 @@ mod constants;
 mod entities;
 mod resources;
 
-/// System set used to order OnEnter(Playing) systems
-#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum PlayingStartup {
-    InitData,
-    SpawnEntities,
-}
-
 pub struct PlayingStatePlugin;
 
 impl Plugin for PlayingStatePlugin {
@@ -38,11 +31,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(MapPlugin)
             .add_plugins(ChunkManagerPlugin)
             .add_plugins(SemaphorePlugin)
-            .configure_sets(
-                OnEnter(GameGlobalState::Playing),
-                PlayingStartup::SpawnEntities.after(PlayingStartup::InitData),
-            )
-            .add_systems(OnEnter(GameGlobalState::Playing), on_enter.in_set(PlayingStartup::InitData))
+            .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
     }
 }

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     constants::WINDOW_HEIGHT,
     game_state::{
-        playing::{PlayingAll, PlayingData, PlayingMap, PlayingStartup},
+        playing::{PlayingAll, PlayingData, PlayingMap},
         GameGlobalState,
     },
 };
@@ -36,7 +36,7 @@ impl Plugin for SemaphorePlugin {
         app.init_resource::<SemaphoreCountdown>()
             .add_systems(
                 OnEnter(GameGlobalState::Playing),
-                spawn_semaphore.in_set(PlayingStartup::SpawnEntities),
+                spawn_semaphore.run_if(in_state(GameGlobalState::Playing)),
             )
             .add_systems(
                 Update,
@@ -44,6 +44,7 @@ impl Plugin for SemaphorePlugin {
             );
     }
 }
+
 
 fn spawn_semaphore(
     playing_data: Res<PlayingData>,
