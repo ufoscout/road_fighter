@@ -31,7 +31,7 @@ impl Plugin for MainWindowPlugin {
             // Systems that run once at the start of the app
             .add_systems(Startup, setup)
             // Set up the main window
-            .add_plugins(
+            .add_plugins( 
                 DefaultPlugins
                     .set(WindowPlugin {
                         primary_window: Some(Window {
