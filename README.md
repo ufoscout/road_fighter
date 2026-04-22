@@ -10,10 +10,10 @@ Road Fighter remake in Rust using Bevy ECS.
 - [x] Player car: movement, acceleration/braking, keyboard input
 - [x] Wall collision detection (Avian2d physics)
 - [x] Explosion animation (12-frame spritesheet)
+- [x] Semaphore / traffic light at level start (blocks car until green)
 
 ### Missing
 - [ ] Enemy cars (6 types: Normal, Racer, Fast, Slidder, Truck)
-- [ ] Semaphore / traffic light at level start
 - [ ] Obstacles: water, oil slicks, rocks
 - [ ] Fuel system: consumption over time + pickup objects
 - [ ] HUD: fuel gauge, score, level indicator

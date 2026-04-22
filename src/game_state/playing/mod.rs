@@ -6,6 +6,7 @@ use explosion::PlayerCarExplosionPlugin;
 use map::{build_map_config, spawn_collision_tiles, MapPlugin};
 use player_car::{spawn_player_car, PlayerCarPlugin};
 use resources::*;
+use semaphore::{spawn_semaphore, SemaphorePlugin};
 
 use crate::chunk_manager::{setup_chunk_manager, ChunkManagerPlugin};
 
@@ -29,6 +30,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(PlayerCarExplosionPlugin)
             .add_plugins(MapPlugin)
             .add_plugins(ChunkManagerPlugin)
+            .add_plugins(SemaphorePlugin)
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
     }
@@ -39,6 +41,7 @@ fn on_enter(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    mut semaphore_countdown: ResMut<semaphore::SemaphoreCountdown>,
 ) {
     *playing_data = Default::default();
 
@@ -46,6 +49,7 @@ fn on_enter(
     setup_chunk_manager(config, initial_scroll, &mut commands);
     spawn_collision_tiles(&playing_data, &mut commands);
     spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, initial_scroll, 0.);
+    spawn_semaphore(&playing_data, &mut commands, &asset_server, &mut semaphore_countdown);
 }
 
 pub fn print_started_collisions(mut collision_event_reader: MessageReader<CollisionStart>) {

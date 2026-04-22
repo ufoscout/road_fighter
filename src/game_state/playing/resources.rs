@@ -78,6 +78,8 @@ pub struct MapData {
     pub semaphore_object_index: Option<usize>,
     /// The semaphore tiles
     pub semaphore_tiles: [[usize; 2]; 5],
+    /// Map-space pixel position of the semaphore object (top-left corner)
+    pub semaphore_position: Option<(f32, f32)>,
 
     pub background_tiles: Vec<MapTile>,
     pub middleground_tiles: Vec<MapTile>,
@@ -266,17 +268,19 @@ impl MapData {
             // skip 1 line
             let _ = read_line(&mut lines)?;
 
+            let semaphore_object_index = map.semaphore_object_index;
+
             // we are now at line 409 of the level1.map file
             // background tiles
-            parse_objects_and_tiles(&mut lines, &mut map.background_tiles, map.semaphore_object_index)?;
+            parse_objects_and_tiles(&mut lines, &mut map.background_tiles, semaphore_object_index, &mut map.semaphore_position)?;
 
             // we are now at line 1953 of the level1.map file
             // middleground
-            parse_objects_and_tiles(&mut lines, &mut map.middleground_tiles, map.semaphore_object_index)?;
+            parse_objects_and_tiles(&mut lines, &mut map.middleground_tiles, semaphore_object_index, &mut map.semaphore_position)?;
 
             // we are now at line 3925 of the level1.map file
             // foreground
-            parse_objects_and_tiles(&mut lines, &mut map.foreground_tiles, map.semaphore_object_index)?;
+            parse_objects_and_tiles(&mut lines, &mut map.foreground_tiles, semaphore_object_index, &mut map.semaphore_position)?;
         }
 
         Ok(map)
@@ -288,6 +292,7 @@ fn parse_objects_and_tiles(
     lines: &mut Lines<BufReader<&mut dyn Read>>,
     tiles: &mut Vec<MapTile>,
     semaphore_object_index: Option<usize>,
+    semaphore_pos: &mut Option<(f32, f32)>,
 ) -> Result<(), GameError> {
     // background tiles
     {
@@ -323,17 +328,16 @@ fn parse_objects_and_tiles(
             let line = read_line(lines)?;
             let mut line = line.split_whitespace();
 
-            let _x: usize = parse_next(&mut line)?;
-            let _y: usize = parse_next(&mut line)?;
+            let x: usize = parse_next(&mut line)?;
+            let y: usize = parse_next(&mut line)?;
 
             let line = read_line(lines)?;
             let mut line = line.split_whitespace();
 
             let index: usize = parse_next(&mut line)?;
 
-            if Some(index) == semaphore_object_index {
-                let TODO = 0;
-                println!("TODO: semaphore background object found");
+            if Some(index) == semaphore_object_index && semaphore_pos.is_none() {
+                *semaphore_pos = Some((x as f32, y as f32));
             }
         }
     }
@@ -402,6 +406,7 @@ mod tests {
 
         assert_eq!(map.semaphore_object_index, Some(0));
         assert_eq!(map.semaphore_tiles[0], [1, 14]);
+        assert!(map.semaphore_position.is_some(), "semaphore position should be captured from background objects");
         assert_eq!(map.semaphore_tiles[1], [1, 15]);
         assert_eq!(map.semaphore_tiles[2], [1, 16]);
         assert_eq!(map.semaphore_tiles[3], [1, 17]);

@@ -8,6 +8,7 @@ use crate::game_state::{
     },
     GameGlobalState,
 };
+use super::semaphore::SemaphoreCountdown;
 
 use super::*;
 
@@ -78,12 +79,16 @@ pub fn respawn_player_car(
     }
 }
 
-/// Move to menu screen whatever key is pressed
 pub fn handle_key_pressed(
     time: Res<Time>,
     mut car: Query<&mut PlayerOneCar>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    countdown: Res<SemaphoreCountdown>,
 ) {
+    if countdown.is_active() {
+        return;
+    }
+
     let delta = time.delta_secs();
 
     for mut car in car.iter_mut() {
