@@ -16,5 +16,7 @@ pub const PLAYER_RESPAWN_DELAY_SECS: f32 = 2.;
 // pub const ENEMY_HSPEED: usize = 416;
 // pub const ENEMY_CAR_INTERVAL: usize = 38;
 
-// The original game runs at 27 FPS, so we need to adjust the speed of the game to match the original
-pub const ORIGINAL_FPS: f32 = 27.;
+// The original game has REDRAWING_PERIOD=27ms, giving ~37.037 FPS (27 is ms/frame, not FPS)
+const ORIGINAL_FPS: f32 = 1000. / 27.;
+// Converts 8.8 fixed-point speed units (as used in the C original) to pixels/second
+pub const PLAYER_POSITION_RATIO: f32 = ORIGINAL_FPS / 256.;

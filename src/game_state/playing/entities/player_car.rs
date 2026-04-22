@@ -4,7 +4,7 @@ use explosion::spawn_explosion;
 
 use crate::game_state::{
     playing::{
-        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED, PLAYER_RESPAWN_DELAY_SECS}, CarCollidedSide, CollidedWithWall, PlayerOneCar, PlayingAll, ToBeRespawned
+        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED, PLAYER_POSITION_RATIO, PLAYER_RESPAWN_DELAY_SECS}, CarCollidedSide, CollidedWithWall, PlayerOneCar, PlayingAll, ToBeRespawned
     },
     GameGlobalState,
 };
@@ -110,7 +110,7 @@ pub fn handle_key_pressed(
             };
 
             // if speed is between -PLAYER_BRAKE_RATE and PLAYER_BRAKE_RATE, set it to 0
-            if car.speed_y.abs() <= PLAYER_BRAKE_RATE {
+            if car.speed_y.abs() <= PLAYER_BRAKE_RATE * delta {
                 car.speed_y = 0.;
             }
         }
@@ -123,9 +123,8 @@ pub fn handle_key_pressed(
             car.speed_x = 0.;
         }
 
-        let position_ratio = 1. / 8.;
-        car.y_position += car.speed_y * delta * position_ratio;
-        car.x_position += car.speed_x * delta * position_ratio;
+        car.y_position += car.speed_y * delta * PLAYER_POSITION_RATIO;
+        car.x_position += car.speed_x * delta * PLAYER_POSITION_RATIO;
         // println!("Speed x: {}", car.speed_x);
         // println!("Posit y: {}", car.x_position);
     }
