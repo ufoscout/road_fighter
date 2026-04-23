@@ -6,7 +6,7 @@ use explosion::PlayerCarExplosionPlugin;
 use map::{build_map_config, spawn_collision_tiles, MapPlugin};
 use player_car::{spawn_player_car, PlayerCarPlugin};
 use resources::*;
-use right_panel::RightPanelPlugin;
+use panel::PanelPlugin;
 use semaphore::SemaphorePlugin;
 
 use crate::chunk_manager::{setup_chunk_manager, ChunkManagerPlugin};
@@ -32,7 +32,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(MapPlugin)
             .add_plugins(ChunkManagerPlugin)
             .add_plugins(SemaphorePlugin)
-            .add_plugins(RightPanelPlugin)
+            .add_plugins(PanelPlugin)
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
             .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
     }

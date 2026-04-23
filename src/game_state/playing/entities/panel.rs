@@ -15,9 +15,15 @@ use crate::{
     },
 };
 
-// Scoreboard panel dimensions (pixels, SDL top-left origin)
+// Right scoreboard panel dimensions (pixels, SDL top-left origin)
 const SCOREBOARD_WIDTH: f32 = 145.;
 const SCOREBOARD_LEFT_SCREEN_X: f32 = WINDOW_WIDTH - SCOREBOARD_WIDTH; // 367
+
+// Left scoreboard panel: 20 px wide, right edge at screen_x=16 (4 px off-screen on the left).
+// Original formula: r.x = -scoreboardleft_w + (desired_scoreboard_x - 352) = -20 + 16 = -4
+// World center_x = (screen_x_left + screen_x_right) / 2 - WINDOW_WIDTH/2
+//                = (-4 + 16) / 2 - 256 = -250
+const SCOREBOARD_LEFT_CENTER_X: f32 = -250.; // matches original 4-px-off-left-edge placement
 
 // Bar parameters (SDL coordinates)
 const BAR_WIDTH: f32 = 32.;
@@ -41,13 +47,29 @@ const BAR_BOTTOM_Y: f32 = WINDOW_HEIGHT / 2. - BAR_BOTTOM_SCREEN_Y; // -175
 
 const PANEL_Z: f32 = 500.;
 
-pub struct RightPanelPlugin;
+pub struct PanelPlugin;
 
-impl Plugin for RightPanelPlugin {
+impl Plugin for PanelPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameGlobalState::Playing), spawn_right_panel)
+        .add_systems(OnEnter(GameGlobalState::Playing), spawn_left_panel)
             .add_systems(Update, update_bars.run_if(in_state(GameGlobalState::Playing)));
     }
+}
+
+fn spawn_left_panel(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
+    // Left scoreboard strip (static decorative panel)
+    commands.spawn((
+        Sprite {
+            image: asset_server.load("graphics/scoreboard_left.png"),
+            ..default()
+        },
+        Transform::from_translation(Vec3::new(SCOREBOARD_LEFT_CENTER_X, 0., PANEL_Z)),
+        PlayingAll,
+    ));
 }
 
 fn spawn_right_panel(
@@ -55,7 +77,8 @@ fn spawn_right_panel(
     asset_server: Res<AssetServer>,
     mut images: ResMut<Assets<Image>>,
 ) {
-    // Scoreboard background
+
+    // Right scoreboard background
     commands.spawn((
         Sprite {
             image: asset_server.load("graphics/scoreboard.png"),
