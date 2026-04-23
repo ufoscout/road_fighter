@@ -7,6 +7,7 @@ use crate::{
     game_state::{
         playing::{
             assets::{add_collider, AssetKey},
+            constants::MAP_ORIGIN_X,
             CarCollidedSide, CollidedWithWall, LeftWall, MapData, MapTile, PlayerOneCar,
             PlayingAll, PlayingData, PlayingMap, RightWall,
         },
@@ -44,7 +45,7 @@ pub fn build_map_config(playing_data: &PlayingData) -> (ChunkManagerConfig, f32)
     // map_origin: world-space position of map pixel (0, 0).
     //   x = tile.map_x - WINDOW_WIDTH/2  + tile.width/2
     //   y = WINDOW_HEIGHT/2 - tile.map_y - tile.height/2
-    let map_origin = Vec2::new(-map_data.width / 2.0, WINDOW_HEIGHT / 2.0);
+    let map_origin = Vec2::new(MAP_ORIGIN_X, WINDOW_HEIGHT / 2.0);
 
     let config = ChunkManagerConfig {
         map_width: map_data.width as u32,
@@ -85,7 +86,7 @@ pub fn spawn_collision_tiles(
             continue;
         }
 
-        let x = map_tile.x - map_data.width / 2.0 + tile_data.width as f32 / 2.0;
+        let x = MAP_ORIGIN_X + map_tile.x + tile_data.width as f32 / 2.0;
         let y = WINDOW_HEIGHT / 2.0 - map_tile.y - tile_data.height as f32 / 2.0;
 
         let mut entity = commands.spawn((

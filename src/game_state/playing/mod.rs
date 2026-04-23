@@ -46,10 +46,13 @@ fn on_enter(
 ) {
     *playing_data = Default::default();
 
+    let map_data = playing_data.level.map_data();
+    let initial_car_x = constants::MAP_ORIGIN_X + map_data.width / 2.0;
+
     let (config, initial_scroll) = build_map_config(&playing_data);
     setup_chunk_manager(config, initial_scroll, &mut commands);
     spawn_collision_tiles(&playing_data, &mut commands);
-    spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, initial_scroll, 0.);
+    spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, initial_scroll, initial_car_x);
 }
 
 pub fn print_started_collisions(mut collision_event_reader: MessageReader<CollisionStart>) {

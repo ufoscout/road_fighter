@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     constants::WINDOW_HEIGHT,
     game_state::{
-        playing::{PlayingAll, PlayingData, PlayingMap},
+        playing::{constants::MAP_ORIGIN_X, PlayingAll, PlayingData, PlayingMap},
         GameGlobalState,
     },
 };
@@ -72,7 +72,7 @@ fn spawn_semaphore(
         Rect::new(t.x as f32, t.y as f32, (t.x + t.width) as f32, (t.y + t.height) as f32)
     });
 
-    let world_x = sem_x - map_data.width / 2.0 + tile_w / 2.0;
+    let world_x = MAP_ORIGIN_X + sem_x + tile_w / 2.0;
     let world_y = WINDOW_HEIGHT / 2.0 - sem_y - tile_h / 2.0;
 
     commands.spawn((
