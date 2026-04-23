@@ -146,6 +146,22 @@ pub fn right_wall_collisions(
     }
 }
 
+/// Returns `(dist_to_left_wall, dist_to_right_wall)` from the car's current position.
+/// Returns `None` if either wall is not found (e.g. at map boundaries).
+pub fn wall_distances(
+    transform: &Transform,
+    spatial_query: &SpatialQuery,
+) -> Option<(f32, f32)> {
+    use crate::game_state::playing::GameLayer;
+    let filter = SpatialQueryFilter::from_mask([GameLayer::Wall]);
+    let origin = transform.translation.truncate();
+
+    let left = spatial_query.cast_ray(origin, Dir2::NEG_X, f32::MAX, true, &filter)?;
+    let right = spatial_query.cast_ray(origin, Dir2::X, f32::MAX, true, &filter)?;
+
+    Some((left.distance, right.distance))
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 fn collect_blits(

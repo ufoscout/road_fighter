@@ -15,7 +15,7 @@ use crate::game_state::{
 };
 use crate::game_state::playing::resources::{PlayingData, RaceState};
 
-use super::*;
+use super::{map::wall_distances, *};
 
 /// The plugin that handles the player car
 pub struct PlayerCarPlugin;
@@ -72,14 +72,19 @@ pub fn respawn_player_car(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    car: Query<(Entity, &ToBeRespawned)>) {
-
+    spatial_query: SpatialQuery,
+    car: Query<(Entity, &ToBeRespawned)>,
+) {
     let now = time.elapsed_secs();
     for (id, car) in car.iter() {
         if car.despawn_time + PLAYER_RESPAWN_DELAY_SECS < now {
             let car = car.car.clone();
+            let probe = Transform::from_translation(Vec3::new(car.x_position, -126.0, 0.0));
+            let x_position = wall_distances(&probe, &spatial_query)
+                .map(|(left_dist, right_dist)| car.x_position + (right_dist - left_dist) / 2.0)
+                .unwrap_or(car.x_position);
             commands.entity(id).despawn();
-            spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, car.y_position, car.x_position);
+            spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, car.y_position, x_position);
         }
     }
 }
