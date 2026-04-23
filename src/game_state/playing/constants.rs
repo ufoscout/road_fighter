@@ -3,12 +3,13 @@
 pub const PLAYER_MAX_SPEED: f32 = 6144.;
 pub const PLAYER_MAX_ACCEL_RATE: f32 = 48. * ORIGINAL_FPS;
 pub const PLAYER_BRAKE_RATE: f32 = 16. * ORIGINAL_FPS;
-// pub const PLAYER_BRAKE_RATE_NO_FUEL: f32 = 64. * ORIGINAL_FPS;
+pub const PLAYER_BRAKE_RATE_NO_FUEL: f32 = 64. * ORIGINAL_FPS;
 pub const PLAYER_MAX_HSPEED: f32 = 768.;
-// pub const PLAYER_BOUNCE_HSPEED: usize = 880;
-// pub const PLAYER_MAX_FUEL: usize = 2048;
-// pub const PLAYER_FUEL_RECHARGE: usize = 384;
-// pub const PLAYER_FUEL_LOSS: usize = 256;
+// pub const PLAYER_BOUNCE_HSPEED: f32 = 880.;
+pub const PLAYER_MAX_FUEL: f32 = 2048.;
+pub const PLAYER_FUEL_DRAIN_RATE: f32 = ORIGINAL_FPS;
+pub const PLAYER_FUEL_RECHARGE: f32 = 384.;
+pub const PLAYER_FUEL_LOSS_ON_CRASH: f32 = 256.;
 pub const PLAYER_RESPAWN_DELAY_SECS: f32 = 2.;
 
 // Enemy:

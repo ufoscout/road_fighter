@@ -10,7 +10,14 @@ pub struct PlayerOneCar {
     pub x_position: f32,
     pub speed_x: f32,
     pub speed_y: f32,
+    pub fuel: f32,
 }
+
+#[derive(Component)]
+pub struct SpeedBar;
+
+#[derive(Component)]
+pub struct FuelBar;
 
 #[derive(Component)]
 pub struct ToBeRespawned {

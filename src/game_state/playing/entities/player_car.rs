@@ -4,7 +4,12 @@ use explosion::spawn_explosion;
 
 use crate::game_state::{
     playing::{
-        constants::{PLAYER_BRAKE_RATE, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_HSPEED, PLAYER_MAX_SPEED, PLAYER_POSITION_RATIO, PLAYER_RESPAWN_DELAY_SECS}, CarCollidedSide, CollidedWithWall, PlayerOneCar, PlayingAll, ToBeRespawned
+        constants::{
+            PLAYER_BRAKE_RATE, PLAYER_BRAKE_RATE_NO_FUEL, PLAYER_FUEL_DRAIN_RATE,
+            PLAYER_FUEL_LOSS_ON_CRASH, PLAYER_MAX_ACCEL_RATE, PLAYER_MAX_FUEL, PLAYER_MAX_HSPEED,
+            PLAYER_MAX_SPEED, PLAYER_POSITION_RATIO, PLAYER_RESPAWN_DELAY_SECS,
+        },
+        CarCollidedSide, CollidedWithWall, PlayerOneCar, PlayingAll, ToBeRespawned,
     },
     GameGlobalState,
 };
@@ -19,7 +24,7 @@ impl Plugin for PlayerCarPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_key_pressed, render_screen, car_collided_with_wall, respawn_player_car).run_if(in_state(GameGlobalState::Playing)),
+            (handle_key_pressed, drain_fuel, render_screen, car_collided_with_wall, respawn_player_car).run_if(in_state(GameGlobalState::Playing)),
         );
     }
 }
@@ -43,7 +48,7 @@ pub fn spawn_player_car(
         },
         Transform::from_translation(Vec3::new(0.0, -126., 255.0)),
         PlayingAll,
-        PlayerOneCar { y_position, x_position, speed_y: 0., speed_x: 0. },
+        PlayerOneCar { y_position, x_position, speed_y: 0., speed_x: 0., fuel: PLAYER_MAX_FUEL * 0.95 },
         Collider::polyline(
             vec![
                 vec2(-9., -15.),
@@ -97,21 +102,28 @@ pub fn handle_key_pressed(
         let x_speed_ratio =
             if y_speed_ratio < 0.1 { y_speed_ratio * 2. } else { (((y_speed_ratio - 0.1) / 0.9) * 0.8) + 0.2 };
 
-        if keyboard_input.pressed(KeyCode::Space) {
-            car.speed_y += (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;
-            car.speed_y = car.speed_y.min(PLAYER_MAX_SPEED);
-            // println!("Increase Speed: {}", car.speed_y);
-        } else {
-            // println!("Brake: {}", car.speed_y);
-            if car.speed_y < 0. {
-                car.speed_y += PLAYER_BRAKE_RATE * delta;
+        if car.fuel > 0. {
+            if keyboard_input.pressed(KeyCode::Space) {
+                car.speed_y += (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;
+                car.speed_y = car.speed_y.min(PLAYER_MAX_SPEED);
             } else {
-                car.speed_y -= PLAYER_BRAKE_RATE * delta;
-            };
-
-            // if speed is between -PLAYER_BRAKE_RATE and PLAYER_BRAKE_RATE, set it to 0
-            if car.speed_y.abs() <= PLAYER_BRAKE_RATE * delta {
+                let brake = PLAYER_BRAKE_RATE * delta;
+                if car.speed_y.abs() <= brake {
+                    car.speed_y = 0.;
+                } else if car.speed_y > 0. {
+                    car.speed_y -= brake;
+                } else {
+                    car.speed_y += brake;
+                }
+            }
+        } else {
+            let brake = PLAYER_BRAKE_RATE_NO_FUEL * delta;
+            if car.speed_y.abs() <= brake {
                 car.speed_y = 0.;
+            } else if car.speed_y > 0. {
+                car.speed_y -= brake;
+            } else {
+                car.speed_y += brake;
             }
         }
 
@@ -141,6 +153,10 @@ pub fn car_collided_with_wall(
         car.speed_x = 0.;
         car.speed_y = 0.;
 
+        if car.fuel > PLAYER_FUEL_LOSS_ON_CRASH * 2. {
+            car.fuel -= PLAYER_FUEL_LOSS_ON_CRASH;
+        }
+
         match collision.side {
             CarCollidedSide::Left => car.x_position += 20.,
             CarCollidedSide::Right => car.x_position -= 20.,
@@ -156,4 +172,18 @@ pub fn render_screen(mut car: Query<(&mut PlayerOneCar, &mut Transform)>) {
     car.iter_mut().for_each(|(car, mut transform)| {
         transform.translation.x = car.x_position;
     });
+}
+
+pub fn drain_fuel(
+    time: Res<Time>,
+    playing_data: Res<PlayingData>,
+    mut car: Query<&mut PlayerOneCar>,
+) {
+    if playing_data.race_state != RaceState::Started {
+        return;
+    }
+    let delta = time.delta_secs();
+    for mut car in car.iter_mut() {
+        car.fuel = (car.fuel - PLAYER_FUEL_DRAIN_RATE * delta).max(0.);
+    }
 }

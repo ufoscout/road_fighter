@@ -3,6 +3,7 @@ use avian2d::prelude::PhysicsLayer;
 pub mod explosion;
 pub mod map;
 pub mod player_car;
+pub mod right_panel;
 pub mod semaphore;
 
 #[derive(PhysicsLayer, Default, Clone)]
