@@ -1,4 +1,4 @@
-use bevy::{camera::ScalingMode, log::LogPlugin, prelude::*, window::WindowResolution};
+use bevy::{camera::{ScalingMode, Viewport}, log::LogPlugin, prelude::*, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{
     disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin,
@@ -28,8 +28,8 @@ struct MainWindowPlugin;
 impl Plugin for MainWindowPlugin {
     fn build(&self, app: &mut App) {
         app
-            // Systems that run once at the start of the app
             .add_systems(Startup, setup)
+            .add_systems(PostUpdate, update_letterbox_viewport)
             // Set up the main window
             .add_plugins( 
                 DefaultPlugins
@@ -69,4 +69,36 @@ fn setup(mut commands: Commands) {
         },
         Msaa::Off,
     ));
+}
+
+fn update_letterbox_viewport(
+    windows: Query<&Window>,
+    mut camera_query: Query<&mut Camera>,
+    mut prev_size: Local<UVec2>,
+) {
+    let Ok(window) = windows.single() else { return };
+    let size = window.physical_size();
+    if size == *prev_size || size.x == 0 || size.y == 0 {
+        return;
+    }
+    *prev_size = size;
+
+    let Ok(mut camera) = camera_query.single_mut() else { return };
+
+    let target_ratio = WINDOW_WIDTH / WINDOW_HEIGHT;
+    let window_ratio = size.x as f32 / size.y as f32;
+
+    let (vp_w, vp_h) = if window_ratio > target_ratio {
+        // Window wider than target: pillarbox (bars on left/right)
+        ((size.y as f32 * target_ratio) as u32, size.y)
+    } else {
+        // Window taller than target: letterbox (bars on top/bottom)
+        (size.x, (size.x as f32 / target_ratio) as u32)
+    };
+
+    camera.viewport = Some(Viewport {
+        physical_position: UVec2::new((size.x - vp_w) / 2, (size.y - vp_h) / 2),
+        physical_size: UVec2::new(vp_w, vp_h),
+        ..default()
+    });
 }
