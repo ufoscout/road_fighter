@@ -189,6 +189,56 @@ pub fn drain_fuel(
     }
     let delta = time.delta_secs();
     for mut car in car.iter_mut() {
-        car.fuel = (car.fuel - PLAYER_FUEL_DRAIN_RATE * delta).max(0.);
+        car.fuel = calculate_new_fuel(car.fuel, delta);
+    }
+}
+
+#[inline]
+fn calculate_new_fuel(fuel: f32, delta: f32) -> f32 {
+    (fuel - PLAYER_FUEL_DRAIN_RATE * delta).max(0.)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Fuel sampled every second from the C game during a real race run.
+    // Drain is exactly 37 units/s in the C game (integer decrement at ~37 fps).
+    // Rust uses PLAYER_FUEL_DRAIN_RATE = 1000/27 ≈ 37.037, so accumulated drift
+    // over the full 63-second run is < 3 units — well within the ±5 tolerance.
+    const REFERENCE: &[(u32, f32)] = &[
+        (0,  2346.), (1,  2309.), (2,  2272.), (3,  2235.), (4,  2198.),
+        (5,  2161.), (6,  2124.), (7,  2087.), (8,  2050.), (9,  2013.),
+        (10, 1976.), (11, 1939.), (12, 1902.), (13, 1865.), (14, 1828.),
+        (15, 1791.), (16, 1754.), (17, 1717.), (18, 1680.), (19, 1643.),
+        (20, 1606.), (21, 1569.), (22, 1532.), (23, 1495.), (24, 1458.),
+        (25, 1421.), (26, 1384.), (27, 1347.), (28, 1310.), (29, 1273.),
+        (30, 1236.), (31, 1199.), (32, 1162.), (33, 1125.), (34, 1088.),
+        (35, 1051.), (36, 1014.), (37,  977.), (38,  940.), (39,  903.),
+        (40,  866.), (41,  829.), (42,  792.), (43,  755.), (44,  718.),
+        (45,  681.), (46,  644.), (47,  607.), (48,  570.), (49,  533.),
+        (50,  496.), (51,  459.), (52,  422.), (53,  385.), (54,  348.),
+        (55,  311.), (56,  274.), (57,  237.), (58,  200.), (59,  163.),
+        (60,  126.), (61,   89.), (62,   52.), (63,   15.),
+    ];
+
+    const TOLERANCE: f32 = 5.;
+
+    #[test]
+    fn fuel_drain_matches_c_reference() {
+        let mut fuel = REFERENCE[0].1;
+
+        for window in REFERENCE.windows(2) {
+            let (t0, _)        = window[0];
+            let (t1, expected) = window[1];
+            let dt = (t1 - t0) as f32;
+            fuel = calculate_new_fuel(fuel, dt);
+            let diff = (fuel - expected).abs();
+            assert!(
+                diff <= TOLERANCE,
+                "t={}s: expected fuel≈{}, got {:.2} (diff={:.2})",
+                t1, expected, fuel, diff,
+            );
+        }
     }
 }

@@ -22,6 +22,6 @@ pub const PLAYER_RESPAWN_DELAY_SECS: f32 = 2.;
 pub const MAP_ORIGIN_X: f32 = -240.;
 
 // The original game has REDRAWING_PERIOD=27ms, giving ~37.037 FPS (27 is ms/frame, not FPS)
-const ORIGINAL_FPS: f32 = 27.; // 1000. / 27.;
+const ORIGINAL_FPS: f32 = 1000. / 27.;
 // Converts 8.8 fixed-point speed units (as used in the C original) to pixels/second
 pub const PLAYER_POSITION_RATIO: f32 = ORIGINAL_FPS / 256.;
