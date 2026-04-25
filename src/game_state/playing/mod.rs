@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use components::*;
 use entities::*;
 use explosion::PlayerCarExplosionPlugin;
+use fuel_heart::FuelHeartPlugin;
 use map::{build_map_config, spawn_collision_tiles, MapPlugin};
 use player_car::{spawn_player_car, PlayerCarPlugin};
 use resources::*;
@@ -29,6 +30,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(PlayerCarPlugin)
             .add_plugins(PlayerCarExplosionPlugin)
+            .add_plugins(FuelHeartPlugin)
             .add_plugins(MapPlugin)
             .add_plugins(ChunkManagerPlugin)
             .add_plugins(SemaphorePlugin)

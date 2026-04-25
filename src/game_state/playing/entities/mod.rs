@@ -1,6 +1,7 @@
 use avian2d::prelude::PhysicsLayer;
 
 pub mod explosion;
+pub mod fuel_heart;
 pub mod map;
 pub mod player_car;
 pub mod panel;
