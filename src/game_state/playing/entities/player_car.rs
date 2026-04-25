@@ -109,8 +109,7 @@ pub fn handle_key_pressed(
 
         if car.fuel > 0. {
             if keyboard_input.pressed(KeyCode::Space) {
-                car.speed_y += (1. - y_speed_ratio) * PLAYER_MAX_ACCEL_RATE * delta;
-                car.speed_y = car.speed_y.min(PLAYER_MAX_SPEED);
+                car.speed_y = apply_throttle(car.speed_y, delta);
             } else {
                 let brake = PLAYER_BRAKE_RATE * delta;
                 if car.speed_y.abs() <= brake {
@@ -194,6 +193,12 @@ pub fn drain_fuel(
 }
 
 #[inline]
+fn apply_throttle(speed_y: f32, delta: f32) -> f32 {
+    let ratio = speed_y / PLAYER_MAX_SPEED;
+    (speed_y + (1. - ratio) * PLAYER_MAX_ACCEL_RATE * delta).min(PLAYER_MAX_SPEED)
+}
+
+#[inline]
 fn calculate_new_fuel(fuel: f32, delta: f32) -> f32 {
     (fuel - PLAYER_FUEL_DRAIN_RATE * delta).max(0.)
 }
@@ -201,6 +206,78 @@ fn calculate_new_fuel(fuel: f32, delta: f32) -> f32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Speed and y-position sampled every second from the C game at full throttle.
+    // t=0 is the first second after the race start semaphore clears.
+    // C game has an 8-frame init_delay before acceleration begins, so Rust (no delay,
+    // continuous float) will be slightly ahead — tolerances cover that divergence.
+    const ACCEL_REFERENCE: &[(u32, f32, f32)] = &[
+        //  elapsed_sec    y_px    speed_px_s
+        (0,    70.,  174.),
+        (1,   339.,  352.),
+        (2,   762.,  485.),
+        (3,  1299.,  584.),
+        (4,  1923.,  659.),
+        (5,  2611.,  714.),
+        (6,  3347.,  756.),
+        (7,  4119.,  787.),
+        (8,  4917.,  810.),
+        (9,  5736.,  828.),
+        (10, 6570.,  840.),
+        (11, 7415.,  851.),
+        (12, 8268.,  857.),
+        (13, 9127.,  862.),
+        (14, 9991.,  868.),
+        (15,10860.,  870.),
+        (16,11730.,  870.),
+        (17,12599.,  870.),
+        (18,13469.,  870.),
+        (19,14338.,  870.),
+        (20,15208.,  870.),
+    ];
+
+    fn simulate_full_throttle() -> Vec<(f32, f32)> {
+        // FPS derived from PLAYER_POSITION_RATIO = ORIGINAL_FPS / 256, so ORIGINAL_FPS = ratio * 256
+        let fps = PLAYER_POSITION_RATIO * 256.0;
+        let dt = 1.0 / fps;
+        let frames_per_sec = fps.round() as u32;
+        let mut speed_y = 0.0f32;
+        let mut y_traveled = 0.0f32;
+        let mut results = Vec::new();
+        for _ in 0..ACCEL_REFERENCE.len() {
+            for _ in 0..frames_per_sec {
+                speed_y = apply_throttle(speed_y, dt);
+                y_traveled += speed_y * dt * PLAYER_POSITION_RATIO;
+            }
+            results.push((speed_y * PLAYER_POSITION_RATIO, y_traveled));
+        }
+        results
+    }
+
+    #[test]
+    fn full_throttle_speed_and_position_match_c_reference() {
+        // Speed tolerance covers the init_delay diff (≈49 px/s) plus max-speed rounding (≈18 px/s)
+        const SPEED_TOLERANCE: f32 = 60.;
+        // Y tolerance covers accumulated init_delay effect over 20 seconds (≈453 px peak)
+        const Y_TOLERANCE: f32 = 600.;
+
+        let simulated = simulate_full_throttle();
+        for (i, &(elapsed_sec, ref_y, ref_speed)) in ACCEL_REFERENCE.iter().enumerate() {
+            let (sim_speed, sim_y) = simulated[i];
+            let speed_diff = (sim_speed - ref_speed).abs();
+            assert!(
+                speed_diff <= SPEED_TOLERANCE,
+                "t={}s: speed expected≈{} px/s, got {:.1} (diff={:.1})",
+                elapsed_sec, ref_speed, sim_speed, speed_diff,
+            );
+            let y_diff = (sim_y - ref_y).abs();
+            assert!(
+                y_diff <= Y_TOLERANCE,
+                "t={}s: y expected≈{} px, got {:.1} (diff={:.1})",
+                elapsed_sec, ref_y, sim_y, y_diff,
+            );
+        }
+    }
 
     // Fuel sampled every second from the C game during a real race run.
     // Drain is exactly 37 units/s in the C game (integer decrement at ~37 fps).
