@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 pub mod disclaimer;
 pub mod introduction;
+pub mod level_complete;
 pub mod menu;
 pub mod playing;
 
@@ -17,4 +18,6 @@ pub enum GameGlobalState {
     // Play the game
     #[default]
     Playing,
+    // Brief transition state between levels
+    LevelComplete,
 }

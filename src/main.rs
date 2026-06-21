@@ -1,8 +1,9 @@
 use bevy::{camera::{ScalingMode, Viewport}, log::LogPlugin, prelude::*, window::WindowResolution};
 use constants::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use game_state::{
-    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin, menu::MenuStatePlugin,
-    playing::PlayingStatePlugin, GameGlobalState,
+    disclaimer::DisclaimerStatePlugin, introduction::IntroductionStatePlugin,
+    level_complete::LevelCompletePlugin, menu::MenuStatePlugin, playing::PlayingStatePlugin,
+    GameGlobalState,
 };
 
 mod chunk_manager;
@@ -20,6 +21,7 @@ fn main() {
         .add_plugins(IntroductionStatePlugin)
         .add_plugins(MenuStatePlugin)
         .add_plugins(PlayingStatePlugin)
+        .add_plugins(LevelCompletePlugin)
         .run();
 }
 

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game_state::{playing::{Explosion, ExplosionTimer}, GameGlobalState};
+use crate::game_state::{playing::{Explosion, ExplosionTimer, PlayingAll}, GameGlobalState};
 
 const EXPLOSION_LEN: usize = 12;
 
@@ -39,6 +39,7 @@ pub fn spawn_explosion(
 					translation,
 					..Default::default()
 				},
+				PlayingAll,
 			))
 			.insert(Explosion)
 			.insert(ExplosionTimer::default());

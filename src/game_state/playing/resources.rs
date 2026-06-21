@@ -22,6 +22,8 @@ pub enum RaceState {
 pub struct PlayingData {
     pub level: PlayingLevel,
     pub race_state: RaceState,
+    /// Map-space scroll value at which the player crosses the finish line
+    pub finish_line: f32,
 }
 
 // The different game levels
@@ -37,6 +39,17 @@ pub enum PlayingLevel {
 }
 
 impl PlayingLevel {
+    pub fn next(&self) -> Option<PlayingLevel> {
+        match self {
+            PlayingLevel::LevelOne => Some(PlayingLevel::LevelTwo),
+            PlayingLevel::LevelTwo => Some(PlayingLevel::LevelThree),
+            PlayingLevel::LevelThree => Some(PlayingLevel::LevelFour),
+            PlayingLevel::LevelFour => Some(PlayingLevel::LevelFive),
+            PlayingLevel::LevelFive => Some(PlayingLevel::LevelSix),
+            PlayingLevel::LevelSix => None,
+        }
+    }
+
     pub const ALL: [PlayingLevel; 6] = [
         PlayingLevel::LevelOne,
         PlayingLevel::LevelTwo,

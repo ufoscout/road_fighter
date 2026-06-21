@@ -24,7 +24,7 @@ impl Plugin for PlayerCarPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_key_pressed, drain_fuel, render_screen, car_collided_with_wall, respawn_player_car).run_if(in_state(GameGlobalState::Playing)),
+            (handle_key_pressed, drain_fuel, render_screen, car_collided_with_wall, respawn_player_car, check_level_complete).run_if(in_state(GameGlobalState::Playing)),
         );
     }
 }
@@ -167,7 +167,7 @@ pub fn car_collided_with_wall(
         }
 
         commands.entity(id).despawn();
-        commands.spawn(ToBeRespawned { car: car.clone(), despawn_time: time.elapsed_secs() });
+        commands.spawn((PlayingAll, ToBeRespawned { car: car.clone(), despawn_time: time.elapsed_secs() }));
         spawn_explosion(&mut commands, &asset_server, &mut texture_atlas_layouts, transform.translation);
     });
 }
@@ -201,6 +201,23 @@ fn apply_throttle(speed_y: f32, delta: f32) -> f32 {
 #[inline]
 fn calculate_new_fuel(fuel: f32, delta: f32) -> f32 {
     (fuel - PLAYER_FUEL_DRAIN_RATE * delta).max(0.)
+}
+
+pub fn check_level_complete(
+    car: Query<&PlayerOneCar>,
+    playing_data: Res<PlayingData>,
+    mut next_state: ResMut<NextState<GameGlobalState>>,
+) {
+    if playing_data.race_state != RaceState::Started {
+        return;
+    }
+    for car in car.iter() {
+        if car.fuel > 0.0 && car.y_position >= playing_data.finish_line {
+            info!("Level complete! Advancing to next level.");
+            next_state.set(GameGlobalState::LevelComplete);
+            return;
+        }
+    }
 }
 
 #[cfg(test)]

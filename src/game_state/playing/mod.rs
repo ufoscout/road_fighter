@@ -10,7 +10,7 @@ use resources::*;
 use panel::PanelPlugin;
 use semaphore::SemaphorePlugin;
 
-use crate::chunk_manager::{setup_chunk_manager, ChunkManagerPlugin};
+use crate::chunk_manager::{cleanup_chunk_manager, setup_chunk_manager, ChunkManagerPlugin};
 
 use super::GameGlobalState;
 
@@ -19,6 +19,8 @@ mod components;
 mod constants;
 mod entities;
 mod resources;
+
+pub use resources::{PlayingData, PlayingLevel};
 
 pub struct PlayingStatePlugin;
 
@@ -36,6 +38,7 @@ impl Plugin for PlayingStatePlugin {
             .add_plugins(SemaphorePlugin)
             .add_plugins(PanelPlugin)
             .add_systems(OnEnter(GameGlobalState::Playing), on_enter)
+            .add_systems(OnExit(GameGlobalState::Playing), (on_exit, cleanup_chunk_manager).chain())
             .add_systems(Update, (print_started_collisions,).run_if(in_state(GameGlobalState::Playing)));
     }
 }
@@ -46,15 +49,22 @@ fn on_enter(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    *playing_data = Default::default();
+    playing_data.race_state = RaceState::WaitingToStart;
 
     let map_data = playing_data.level.map_data();
     let initial_car_x = constants::MAP_ORIGIN_X + map_data.width / 2.0;
 
     let (config, initial_scroll) = build_map_config(&playing_data);
+    playing_data.finish_line = initial_scroll + map_data.height;
     setup_chunk_manager(config, initial_scroll, &mut commands);
     spawn_collision_tiles(&playing_data, &mut commands);
     spawn_player_car(&mut commands, &asset_server, &mut texture_atlas_layouts, initial_scroll, initial_car_x);
+}
+
+fn on_exit(mut commands: Commands, entities: Query<Entity, With<PlayingAll>>) {
+    for entity in entities.iter() {
+        commands.entity(entity).despawn();
+    }
 }
 
 pub fn print_started_collisions(mut collision_event_reader: MessageReader<CollisionStart>) {
