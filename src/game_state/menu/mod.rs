@@ -59,8 +59,8 @@ EXIT"#;
 
         commands.spawn((
             Text2d::new(options),
-            TextFont { font, font_size: 30.0, ..default() },
-            TextLayout::new_with_justify(Justify::Left),
+            TextFont { font: font.into(), font_size: FontSize::Px(30.0), ..default() },
+            TextLayout::justify(Justify::Left),
             Transform::from_translation(Vec3::new(25.0, -75.0, 0.0)),
             MenuAll,
         ));

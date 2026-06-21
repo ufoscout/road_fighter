@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-avian2d = "0.6"
-bevy = { version = "0.18", default-features = false, features = ["2d"] }
+avian2d = "0.7"
+bevy = { version = "0.19", default-features = false, features = ["2d"] }
 image = { version = "0.25", default-features = false, features = ["png"] }
 rand = "0.10"
 thiserror = "2.0"
